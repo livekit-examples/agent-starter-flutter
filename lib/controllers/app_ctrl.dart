@@ -99,30 +99,35 @@ class AppCtrl extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Generate random room and participant names
-      // In a real app, you'd likely use meaningful names
-      final roomName = 'room-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
-      final participantName = 'user-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
+      print("Starting pre-connect audio...");
 
-      // Get connection details from token service
-      final connectionDetails = await tokenService.fetchConnectionDetails(
-        roomName: roomName,
-        participantName: participantName,
-      );
+      await room.withPreConnectAudio(() async {
+        print("Pre-connect audio started...");
 
-      print("Fetched Connection Details: $connectionDetails, connecting to room...");
+        // Generate random room and participant names
+        // In a real app, you'd likely use meaningful names
+        final roomName = 'room-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
+        final participantName = 'user-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
 
-      await room.connect(
-        connectionDetails.serverUrl,
-        connectionDetails.participantToken,
-      );
+        // Get connection details from token service
+        final connectionDetails = await tokenService.fetchConnectionDetails(
+          roomName: roomName,
+          participantName: participantName,
+        );
 
-      print("Connected to room");
+        print("Fetched Connection Details: $connectionDetails, connecting to room...");
 
-      await room.localParticipant?.setMicrophoneEnabled(true);
+        await room.connect(
+          connectionDetails.serverUrl,
+          connectionDetails.participantToken,
+        );
 
-      print("Microphone enabled");
+        print("Connected to room");
 
+        await room.localParticipant?.setMicrophoneEnabled(true);
+
+        print("Microphone enabled");
+      });
       connectionState = ConnectionState.connected;
       appScreenState = AppScreenState.agent;
       notifyListeners();
