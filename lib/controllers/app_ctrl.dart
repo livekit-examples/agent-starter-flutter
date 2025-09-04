@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:livekit_client/livekit_client.dart' as sdk;
@@ -5,6 +7,7 @@ import 'package:livekit_components/livekit_components.dart' as components;
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
+import '../exts.dart';
 import '../services/token_service.dart';
 
 enum AppScreenState { welcome, agent }
@@ -35,6 +38,9 @@ class AppCtrl extends ChangeNotifier {
 
   bool isSendButtonEnabled = false;
 
+  // Timer for checking agent connection
+  Timer? _agentConnectionTimer;
+
   AppCtrl() {
     final format = DateFormat('HH:mm:ss');
     // configure logs for debugging
@@ -55,6 +61,7 @@ class AppCtrl extends ChangeNotifier {
   @override
   void dispose() {
     messageCtrl.dispose();
+    _cancelAgentTimer();
     super.dispose();
   }
 
@@ -125,6 +132,10 @@ class AppCtrl extends ChangeNotifier {
 
       connectionState = ConnectionState.connected;
       appScreenState = AppScreenState.agent;
+
+      // Start the 20-second timer to check for AGENT participant
+      _startAgentConnectionTimer();
+
       notifyListeners();
     } catch (error) {
       print('Connection error: $error');
@@ -137,6 +148,7 @@ class AppCtrl extends ChangeNotifier {
 
   void disconnect() {
     room.disconnect();
+    _cancelAgentTimer();
 
     // Update states
     connectionState = ConnectionState.disconnected;
@@ -144,5 +156,35 @@ class AppCtrl extends ChangeNotifier {
     agentScreenState = AgentScreenState.visualizer;
 
     notifyListeners();
+  }
+
+  // Start a 20-second timer to check for agent connection
+  void _startAgentConnectionTimer() {
+    _cancelAgentTimer(); // Cancel any existing timer
+    print("Starting 20-second timer to check for AGENT participant...");
+
+    _agentConnectionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // Check if there's an agent participant
+      final hasAgent = room.remoteParticipants.values.any((participant) => participant.isAgent);
+
+      if (hasAgent) {
+        print("AGENT participant found, cancelling timer");
+        _cancelAgentTimer();
+        return;
+      }
+
+      // If 10 seconds have elapsed and no agent found, disconnect
+      if (timer.tick >= 20) {
+        print("No AGENT participant found after 20 seconds, disconnecting...");
+        _cancelAgentTimer();
+        disconnect();
+      }
+    });
+  }
+
+  // Cancel the agent connection timer
+  void _cancelAgentTimer() {
+    _agentConnectionTimer?.cancel();
+    _agentConnectionTimer = null;
   }
 }
