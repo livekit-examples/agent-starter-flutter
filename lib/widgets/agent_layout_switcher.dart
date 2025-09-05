@@ -1,6 +1,7 @@
 import 'dart:math' show max;
 
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 
 import 'control_bar.dart';
 
@@ -47,6 +48,8 @@ class LayoutPosition {
 }
 
 class AgentLayoutSwitcher extends StatelessWidget {
+  static final _logger = Logger('AgentLayoutSwitcher');
+
   final AgentLayoutState layoutState;
 
   final Widget Function(BuildContext ctx) transcriptionsBuilder;
@@ -83,7 +86,7 @@ class AgentLayoutSwitcher extends StatelessWidget {
         final double singleCellWidth = constraints.maxWidth * 0.3;
         final double singleCellHeight = constraints.maxHeight * 0.2;
 
-        print('Cell width: $singleCellWidth x $singleCellHeight');
+        _logger.fine('Cell width: $singleCellWidth x $singleCellHeight');
 
         final double cellBottom = (constraints.maxHeight - singleCellHeight - topPadding);
 

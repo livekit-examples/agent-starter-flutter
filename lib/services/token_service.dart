@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 
 /// Data class representing the connection details needed to join a LiveKit room
 /// This includes the server URL, room name, participant info, and auth token
@@ -46,6 +46,8 @@ class ConnectionDetails {
 ///
 /// See https://docs.livekit.io/home/get-started/authentication for more information
 class TokenService {
+  static final _logger = Logger('TokenService');
+
   // For hardcoded token usage (development only)
   final String? hardcodedServerUrl = null;
   final String? hardcodedToken = null;
@@ -108,15 +110,15 @@ class TokenService {
           final data = jsonDecode(response.body);
           return ConnectionDetails.fromJson(data);
         } catch (e) {
-          debugPrint('Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
+          _logger.severe('Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
           throw Exception('Error parsing connection details from LiveKit Cloud sandbox');
         }
       } else {
-        debugPrint('Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
+        _logger.severe('Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
         throw Exception('Error from LiveKit Cloud sandbox');
       }
     } catch (e) {
-      debugPrint('Failed to connect to LiveKit Cloud sandbox: $e');
+      _logger.severe('Failed to connect to LiveKit Cloud sandbox: $e');
       throw Exception('Failed to connect to LiveKit Cloud sandbox');
     }
   }
