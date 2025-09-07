@@ -107,16 +107,15 @@ class AppCtrl extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print("Starting pre-connect audio...");
+      _logger.info("Starting pre-connect audio...");
 
       await room.withPreConnectAudio(() async {
-        print("Pre-connect audio started...");
+        _logger.info("Pre-connect audio started...");
 
         // Generate random room and participant names
         // In a real app, you'd likely use meaningful names
         final roomName = 'room-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
         final participantName = 'user-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
-        _logger.info("Fetched Connection Details: $connectionDetails, connecting to room...");
 
         // Get connection details from token service
         final connectionDetails = await tokenService.fetchConnectionDetails(
