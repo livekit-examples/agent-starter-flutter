@@ -118,7 +118,7 @@ class AppCtrl extends ChangeNotifier {
     });
 
     _preConnectAudioStoppedListener = room.events.on<sdk.PreConnectAudioBufferStoppedEvent>((event) {
-      _logger.info('Pre-connect audio buffer stopped: ${event.bufferedSize} bytes, sent: ${event.isDataSent}');
+      _logger.info('Pre-connect audio buffer stopped: ${event.bufferedSize} bytes, sent: ${event.isBufferSent}');
       isAgentListening = false;
       notifyListeners();
     });
