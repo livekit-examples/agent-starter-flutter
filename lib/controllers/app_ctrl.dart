@@ -24,6 +24,7 @@ class AppCtrl extends ChangeNotifier {
   AppScreenState appScreenState = AppScreenState.welcome;
   ConnectionState connectionState = ConnectionState.disconnected;
   AgentScreenState agentScreenState = AgentScreenState.visualizer;
+  bool isAgentListening = false;
 
   //Test
   bool isUserCameEnabled = false;
@@ -42,6 +43,10 @@ class AppCtrl extends ChangeNotifier {
   // Timer for checking agent connection
   Timer? _agentConnectionTimer;
 
+  // Event listeners cleanup functions
+  sdk.CancelListenFunc? _preConnectAudioStartedListener;
+  sdk.CancelListenFunc? _preConnectAudioStoppedListener;
+
   AppCtrl() {
     final format = DateFormat('HH:mm:ss');
     // configure logs for debugging
@@ -57,12 +62,16 @@ class AppCtrl extends ChangeNotifier {
         notifyListeners();
       }
     });
+
+    // Listen for pre-connect audio buffer events
+    _setupPreConnectAudioListeners();
   }
 
   @override
   void dispose() {
     messageCtrl.dispose();
     _cancelAgentTimer();
+    _cleanupPreConnectAudioListeners();
     super.dispose();
   }
 
@@ -99,6 +108,27 @@ class AppCtrl extends ChangeNotifier {
     agentScreenState =
         agentScreenState == AgentScreenState.visualizer ? AgentScreenState.transcription : AgentScreenState.visualizer;
     notifyListeners();
+  }
+
+  void _setupPreConnectAudioListeners() {
+    _preConnectAudioStartedListener = room.events.on<sdk.PreConnectAudioBufferStartedEvent>((event) {
+      _logger.info('Pre-connect audio buffer started: ${event.sampleRate}Hz, timeout: ${event.timeout}');
+      isAgentListening = true;
+      notifyListeners();
+    });
+
+    _preConnectAudioStoppedListener = room.events.on<sdk.PreConnectAudioBufferStoppedEvent>((event) {
+      _logger.info('Pre-connect audio buffer stopped: ${event.bufferedSize} bytes, sent: ${event.isDataSent}');
+      isAgentListening = false;
+      notifyListeners();
+    });
+  }
+
+  void _cleanupPreConnectAudioListeners() {
+    _preConnectAudioStartedListener?.call();
+    _preConnectAudioStartedListener = null;
+    _preConnectAudioStoppedListener?.call();
+    _preConnectAudioStoppedListener = null;
   }
 
   void connect() async {
@@ -144,6 +174,7 @@ class AppCtrl extends ChangeNotifier {
 
       connectionState = ConnectionState.disconnected;
       appScreenState = AppScreenState.welcome;
+      isAgentListening = false;
       notifyListeners();
     }
   }
@@ -156,6 +187,7 @@ class AppCtrl extends ChangeNotifier {
     connectionState = ConnectionState.disconnected;
     appScreenState = AppScreenState.welcome;
     agentScreenState = AgentScreenState.visualizer;
+    isAgentListening = false;
 
     notifyListeners();
   }
