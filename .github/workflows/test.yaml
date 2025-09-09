@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ '*' ]
+    branches: ["*"]
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
 
       - name: Create empty .env file
         run: touch .env
@@ -25,7 +25,7 @@ jobs:
         run: flutter pub get
 
       - name: dart format
-        run: dart format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed -l 120 .
 
       - name: flutter analyze
         run: flutter analyze --no-fatal-infos
@@ -35,4 +35,3 @@ jobs:
 
       - name: Android Build
         run: flutter pub get && flutter test && flutter build apk && flutter build appbundle
-    
