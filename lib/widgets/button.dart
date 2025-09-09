@@ -32,8 +32,13 @@ class Button extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isProgressing)
-              const CircularProgressIndicator.adaptive(
-                valueColor: AlwaysStoppedAnimation(Colors.white),
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                ),
               ),
             Text(
               text.toUpperCase(),
