@@ -49,6 +49,34 @@ class WelcomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Agent listening indicator
+                Consumer<ctrl.AppCtrl>(
+                  builder: (ctx, appCtrl, child) => AnimatedOpacity(
+                    opacity: appCtrl.isAgentListening ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.mic,
+                            color: Colors.green,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Agent is listening',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 Builder(
                   builder: (ctx) {
                     final isProgressing = [

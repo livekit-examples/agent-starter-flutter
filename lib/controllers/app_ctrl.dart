@@ -24,6 +24,7 @@ class AppCtrl extends ChangeNotifier {
   AppScreenState appScreenState = AppScreenState.welcome;
   ConnectionState connectionState = ConnectionState.disconnected;
   AgentScreenState agentScreenState = AgentScreenState.visualizer;
+  bool isAgentListening = false;
 
   //Test
   bool isUserCameEnabled = false;
@@ -42,6 +43,10 @@ class AppCtrl extends ChangeNotifier {
   // Timer for checking agent connection
   Timer? _agentConnectionTimer;
 
+  // Event listeners cleanup functions
+  sdk.CancelListenFunc? _preConnectAudioStartedListener;
+  sdk.CancelListenFunc? _preConnectAudioStoppedListener;
+
   AppCtrl() {
     final format = DateFormat('HH:mm:ss');
     // configure logs for debugging
@@ -57,12 +62,16 @@ class AppCtrl extends ChangeNotifier {
         notifyListeners();
       }
     });
+
+    // Listen for pre-connect audio buffer events
+    _setupPreConnectAudioListeners();
   }
 
   @override
   void dispose() {
     messageCtrl.dispose();
     _cancelAgentTimer();
+    _cleanupPreConnectAudioListeners();
     super.dispose();
   }
 
@@ -101,36 +110,58 @@ class AppCtrl extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setupPreConnectAudioListeners() {
+    _preConnectAudioStartedListener = room.events.on<sdk.PreConnectAudioBufferStartedEvent>((event) {
+      _logger.info('Pre-connect audio buffer started: ${event.sampleRate}Hz, timeout: ${event.timeout}');
+      isAgentListening = true;
+      notifyListeners();
+    });
+
+    _preConnectAudioStoppedListener = room.events.on<sdk.PreConnectAudioBufferStoppedEvent>((event) {
+      _logger.info('Pre-connect audio buffer stopped: ${event.bufferedSize} bytes, sent: ${event.isBufferSent}');
+      isAgentListening = false;
+      notifyListeners();
+    });
+  }
+
+  void _cleanupPreConnectAudioListeners() {
+    _preConnectAudioStartedListener?.call();
+    _preConnectAudioStartedListener = null;
+    _preConnectAudioStoppedListener?.call();
+    _preConnectAudioStoppedListener = null;
+  }
+
   void connect() async {
     _logger.info("Connect....");
     connectionState = ConnectionState.connecting;
     notifyListeners();
 
     try {
-      // Generate random room and participant names
-      // In a real app, you'd likely use meaningful names
-      final roomName = 'room-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
-      final participantName = 'user-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
+      _logger.info("Starting pre-connect audio...");
 
-      // Get connection details from token service
-      final connectionDetails = await tokenService.fetchConnectionDetails(
-        roomName: roomName,
-        participantName: participantName,
-      );
+      await room.withPreConnectAudio(() async {
+        _logger.info("Pre-connect audio started...");
 
-      _logger.info("Fetched Connection Details: $connectionDetails, connecting to room...");
+        // Generate random room and participant names
+        // In a real app, you'd likely use meaningful names
+        final roomName = 'room-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
+        final participantName = 'user-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
 
-      await room.connect(
-        connectionDetails.serverUrl,
-        connectionDetails.participantToken,
-      );
+        // Get connection details from token service
+        final connectionDetails = await tokenService.fetchConnectionDetails(
+          roomName: roomName,
+          participantName: participantName,
+        );
 
-      _logger.info("Connected to room");
+        _logger.info("Fetched Connection Details: $connectionDetails, connecting to room...");
 
-      await room.localParticipant?.setMicrophoneEnabled(true);
+        await room.connect(
+          connectionDetails.serverUrl,
+          connectionDetails.participantToken,
+        );
 
-      _logger.info("Microphone enabled");
-
+        _logger.info("Connected to room");
+      });
       connectionState = ConnectionState.connected;
       appScreenState = AppScreenState.agent;
 
@@ -143,6 +174,7 @@ class AppCtrl extends ChangeNotifier {
 
       connectionState = ConnectionState.disconnected;
       appScreenState = AppScreenState.welcome;
+      isAgentListening = false;
       notifyListeners();
     }
   }
@@ -155,6 +187,7 @@ class AppCtrl extends ChangeNotifier {
     connectionState = ConnectionState.disconnected;
     appScreenState = AppScreenState.welcome;
     agentScreenState = AgentScreenState.visualizer;
+    isAgentListening = false;
 
     notifyListeners();
   }
