@@ -2,8 +2,8 @@ import 'package:flutter/gestures.dart' show TapGestureRecognizer;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
-import 'package:voice_assistant/controllers/app_ctrl.dart' as ctrl;
-import 'package:voice_assistant/widgets/button.dart' as buttons;
+import '../controllers/app_ctrl.dart' as ctrl;
+import '../widgets/button.dart' as buttons;
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
