@@ -57,6 +57,7 @@ class VoiceAssistantApp extends StatelessWidget {
   Widget build(BuildContext ctx) => MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: appCtrl),
+          ChangeNotifierProvider.value(value: appCtrl.session),
           ChangeNotifierProvider.value(value: appCtrl.roomContext),
         ],
         child: MaterialApp(

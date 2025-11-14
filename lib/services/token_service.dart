@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:livekit_client/livekit_client.dart' as sdk;
 import 'package:logging/logging.dart';
 
 /// Data class representing the connection details needed to join a LiveKit room
@@ -63,7 +65,8 @@ class TokenService {
   }
 
   // LiveKit Cloud sandbox API endpoint
-  final String sandboxUrl = 'https://cloud-api.livekit.io/api/sandbox/connection-details';
+  final String sandboxUrl =
+      'https://cloud-api.livekit.io/api/sandbox/connection-details';
 
   /// Main method to get connection details
   /// First tries hardcoded credentials, then falls back to sandbox
@@ -110,11 +113,14 @@ class TokenService {
           final data = jsonDecode(response.body);
           return ConnectionDetails.fromJson(data);
         } catch (e) {
-          _logger.severe('Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
-          throw Exception('Error parsing connection details from LiveKit Cloud sandbox');
+          _logger.severe(
+              'Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
+          throw Exception(
+              'Error parsing connection details from LiveKit Cloud sandbox');
         }
       } else {
-        _logger.severe('Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
+        _logger.severe(
+            'Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
         throw Exception('Error from LiveKit Cloud sandbox');
       }
     } catch (e) {
@@ -138,4 +144,33 @@ class TokenService {
       participantToken: hardcodedToken!,
     );
   }
+}
+
+/// Bridges [TokenService] to the LiveKit Session API by implementing [TokenSourceConfigurable].
+class TokenServiceTokenSource implements sdk.TokenSourceConfigurable {
+  TokenServiceTokenSource(this._service);
+
+  final TokenService _service;
+  final Random _random = Random();
+
+  @override
+  Future<sdk.TokenSourceResponse> fetch(sdk.TokenRequestOptions options) async {
+    final roomName = options.roomName ?? _randomRoomName();
+    final participantName = options.participantName ?? _randomParticipantName();
+
+    final details = await _service.fetchConnectionDetails(
+      roomName: roomName,
+      participantName: participantName,
+    );
+
+    return sdk.TokenSourceResponse(
+      serverUrl: details.serverUrl,
+      participantToken: details.participantToken,
+      participantName: details.participantName ?? participantName,
+      roomName: details.roomName ?? roomName,
+    );
+  }
+
+  String _randomRoomName() => 'room-${1000 + _random.nextInt(9000)}';
+  String _randomParticipantName() => 'user-${1000 + _random.nextInt(9000)}';
 }

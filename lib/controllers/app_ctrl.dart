@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:livekit_client/livekit_client.dart' as sdk;
@@ -14,17 +12,13 @@ enum AppScreenState { welcome, agent }
 
 enum AgentScreenState { visualizer, transcription }
 
-enum ConnectionState { disconnected, connecting, connected }
-
 class AppCtrl extends ChangeNotifier {
   static const uuid = Uuid();
   static final _logger = Logger('AppCtrl');
 
   // States
   AppScreenState appScreenState = AppScreenState.welcome;
-  ConnectionState connectionState = ConnectionState.disconnected;
   AgentScreenState agentScreenState = AgentScreenState.visualizer;
-  bool isAgentListening = false;
 
   //Test
   bool isUserCameEnabled = false;
@@ -33,19 +27,16 @@ class AppCtrl extends ChangeNotifier {
   final messageCtrl = TextEditingController();
   final messageFocusNode = FocusNode();
 
-  late final sdk.Room room = sdk.Room(roomOptions: const sdk.RoomOptions(enableVisualizer: true));
-  late final roomContext = components.RoomContext(room: room);
-
   final tokenService = TokenService();
+  late final sdk.Room room =
+      sdk.Room(roomOptions: const sdk.RoomOptions(enableVisualizer: true));
+  late final roomContext = components.RoomContext(room: room);
+  late final sdk.Session session = sdk.Session.fromConfigurableTokenSource(
+    TokenServiceTokenSource(tokenService),
+    options: sdk.SessionOptions(room: room),
+  );
 
   bool isSendButtonEnabled = false;
-
-  // Timer for checking agent connection
-  Timer? _agentConnectionTimer;
-
-  // Event listeners cleanup functions
-  sdk.CancelListenFunc? _preConnectAudioStartedListener;
-  sdk.CancelListenFunc? _preConnectAudioStoppedListener;
 
   AppCtrl() {
     final format = DateFormat('HH:mm:ss');
@@ -63,15 +54,16 @@ class AppCtrl extends ChangeNotifier {
       }
     });
 
-    // Listen for pre-connect audio buffer events
-    _setupPreConnectAudioListeners();
+    session.addListener(_handleSessionChange);
   }
 
   @override
   void dispose() {
+    session.removeListener(_handleSessionChange);
+    session.dispose();
+    roomContext.dispose();
     messageCtrl.dispose();
-    _cancelAgentTimer();
-    _cleanupPreConnectAudioListeners();
+    messageFocusNode.dispose();
     super.dispose();
   }
 
@@ -83,14 +75,20 @@ class AppCtrl extends ChangeNotifier {
     notifyListeners();
 
     final lp = room.localParticipant;
-    if (lp == null) return;
+    if (lp == null || text.isEmpty) return;
 
     final nowUtc = DateTime.now().toUtc();
     final segment = sdk.TranscriptionSegment(
-        id: uuid.v4(), text: text, firstReceivedTime: nowUtc, lastReceivedTime: nowUtc, isFinal: true, language: 'en');
-    roomContext.insertTranscription(components.TranscriptionForParticipant(segment, lp));
+        id: uuid.v4(),
+        text: text,
+        firstReceivedTime: nowUtc,
+        lastReceivedTime: nowUtc,
+        isFinal: true,
+        language: 'en');
+    roomContext.insertTranscription(
+        components.TranscriptionForParticipant(segment, lp));
 
-    await lp.sendText(text, options: sdk.SendTextOptions(topic: 'lk.chat'));
+    await session.sendText(text);
   }
 
   void toggleUserCamera(components.MediaDeviceContext? deviceCtx) {
@@ -105,120 +103,50 @@ class AppCtrl extends ChangeNotifier {
   }
 
   void toggleAgentScreenMode() {
-    agentScreenState =
-        agentScreenState == AgentScreenState.visualizer ? AgentScreenState.transcription : AgentScreenState.visualizer;
+    agentScreenState = agentScreenState == AgentScreenState.visualizer
+        ? AgentScreenState.transcription
+        : AgentScreenState.visualizer;
     notifyListeners();
-  }
-
-  void _setupPreConnectAudioListeners() {
-    _preConnectAudioStartedListener = room.events.on<sdk.PreConnectAudioBufferStartedEvent>((event) {
-      _logger.info('Pre-connect audio buffer started: ${event.sampleRate}Hz, timeout: ${event.timeout}');
-      isAgentListening = true;
-      notifyListeners();
-    });
-
-    _preConnectAudioStoppedListener = room.events.on<sdk.PreConnectAudioBufferStoppedEvent>((event) {
-      _logger.info('Pre-connect audio buffer stopped: ${event.bufferedSize} bytes, sent: ${event.isBufferSent}');
-      isAgentListening = false;
-      notifyListeners();
-    });
-  }
-
-  void _cleanupPreConnectAudioListeners() {
-    _preConnectAudioStartedListener?.call();
-    _preConnectAudioStartedListener = null;
-    _preConnectAudioStoppedListener?.call();
-    _preConnectAudioStoppedListener = null;
   }
 
   void connect() async {
-    _logger.info("Connect....");
-    connectionState = ConnectionState.connecting;
-    notifyListeners();
-
+    _logger.info('Starting session connection…');
     try {
-      _logger.info("Starting pre-connect audio...");
-
-      await room.withPreConnectAudio(() async {
-        _logger.info("Pre-connect audio started...");
-
-        // Generate random room and participant names
-        // In a real app, you'd likely use meaningful names
-        final roomName = 'room-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
-        final participantName = 'user-${(1000 + DateTime.now().millisecondsSinceEpoch % 9000)}';
-
-        // Get connection details from token service
-        final connectionDetails = await tokenService.fetchConnectionDetails(
-          roomName: roomName,
-          participantName: participantName,
-        );
-
-        _logger.info("Fetched Connection Details: $connectionDetails, connecting to room...");
-
-        await room.connect(
-          connectionDetails.serverUrl,
-          connectionDetails.participantToken,
-        );
-
-        _logger.info("Connected to room");
-      });
-      connectionState = ConnectionState.connected;
-      appScreenState = AppScreenState.agent;
-
-      // Start the 20-second timer to check for AGENT participant
-      _startAgentConnectionTimer();
-
-      notifyListeners();
-    } catch (error) {
-      _logger.severe('Connection error: $error');
-
-      connectionState = ConnectionState.disconnected;
+      await session.start();
+      if (session.connectionState == sdk.ConnectionState.connected) {
+        appScreenState = AppScreenState.agent;
+        notifyListeners();
+      }
+    } catch (error, stackTrace) {
+      _logger.severe('Connection error: $error', error, stackTrace);
       appScreenState = AppScreenState.welcome;
-      isAgentListening = false;
       notifyListeners();
     }
   }
 
-  void disconnect() {
-    room.disconnect();
-    _cancelAgentTimer();
-
-    // Update states
-    connectionState = ConnectionState.disconnected;
+  void disconnect() async {
+    await session.end();
     appScreenState = AppScreenState.welcome;
     agentScreenState = AgentScreenState.visualizer;
-    isAgentListening = false;
-
     notifyListeners();
   }
 
-  // Start a 20-second timer to check for agent connection
-  void _startAgentConnectionTimer() {
-    _cancelAgentTimer(); // Cancel any existing timer
-    _logger.info("Starting 20-second timer to check for AGENT participant...");
+  void _handleSessionChange() {
+    final sdk.ConnectionState state = session.connectionState;
+    AppScreenState? nextScreen;
+    switch (state) {
+      case sdk.ConnectionState.connected:
+      case sdk.ConnectionState.reconnecting:
+        nextScreen = AppScreenState.agent;
+      case sdk.ConnectionState.disconnected:
+        nextScreen = AppScreenState.welcome;
+      case sdk.ConnectionState.connecting:
+        nextScreen = null;
+    }
 
-    _agentConnectionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      // Check if there's an agent participant
-      final hasAgent = room.remoteParticipants.values.any((participant) => participant.isAgent);
-
-      if (hasAgent) {
-        _logger.info("AGENT participant found, cancelling timer");
-        _cancelAgentTimer();
-        return;
-      }
-
-      // If 10 seconds have elapsed and no agent found, disconnect
-      if (timer.tick >= 20) {
-        _logger.warning("No AGENT participant found after 20 seconds, disconnecting...");
-        _cancelAgentTimer();
-        disconnect();
-      }
-    });
-  }
-
-  // Cancel the agent connection timer
-  void _cancelAgentTimer() {
-    _agentConnectionTimer?.cancel();
-    _agentConnectionTimer = null;
+    if (nextScreen != null && nextScreen != appScreenState) {
+      appScreenState = nextScreen;
+      notifyListeners();
+    }
   }
 }

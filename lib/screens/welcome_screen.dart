@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart' show TapGestureRecognizer;
 import 'package:flutter/material.dart';
+import 'package:livekit_client/livekit_client.dart' as sdk;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
 import '../controllers/app_ctrl.dart' as ctrl;
@@ -21,14 +22,17 @@ class WelcomeScreen extends StatelessWidget {
                   'assets/terminal.png',
                   width: 80,
                   height: 80,
-                  color: Theme.brightnessOf(ctx) == Brightness.light ? Colors.black : Colors.white,
+                  color: Theme.brightnessOf(ctx) == Brightness.light
+                      ? Colors.black
+                      : Colors.white,
                 ),
                 Text.rich(
                   textAlign: TextAlign.center,
                   TextSpan(
                     children: [
                       const TextSpan(
-                        text: 'Start a call to chat with your voice agent. Need help getting set up? Check out the ',
+                        text:
+                            'Start a call to chat with your voice agent. Need help getting set up? Check out the ',
                       ),
                       TextSpan(
                         text: 'Voice AI quickstart',
@@ -40,7 +44,8 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            launchUrl(Uri.parse('https://docs.livekit.io/agents/start/voice-ai/'));
+                            launchUrl(Uri.parse(
+                                'https://docs.livekit.io/agents/start/voice-ai/'));
                           },
                       ),
                       const TextSpan(
@@ -50,12 +55,13 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
                 // Agent listening indicator
-                Consumer<ctrl.AppCtrl>(
-                  builder: (ctx, appCtrl, child) => AnimatedOpacity(
-                    opacity: appCtrl.isAgentListening ? 1.0 : 0.0,
+                Consumer<sdk.Session>(
+                  builder: (ctx, session, child) => AnimatedOpacity(
+                    opacity: session.agent.canListen ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -77,12 +83,10 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Builder(
-                  builder: (ctx) {
-                    final isProgressing = [
-                      ctrl.ConnectionState.connecting,
-                      ctrl.ConnectionState.connected,
-                    ].contains(ctx.watch<ctrl.AppCtrl>().connectionState);
+                Consumer<sdk.Session>(
+                  builder: (ctx, session, child) {
+                    final isProgressing = session.connectionState !=
+                        sdk.ConnectionState.disconnected;
                     return buttons.Button(
                       text: isProgressing ? 'Connecting' : 'Start call',
                       isProgressing: isProgressing,
