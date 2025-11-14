@@ -83,14 +83,15 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Consumer<sdk.Session>(
-                  builder: (ctx, session, child) {
-                    final isProgressing = session.connectionState !=
-                        sdk.ConnectionState.disconnected;
+                Consumer2<ctrl.AppCtrl, sdk.Session>(
+                  builder: (ctx, appCtrl, session, child) {
+                    final isProgressing = appCtrl.isSessionStarting ||
+                        session.connectionState !=
+                            sdk.ConnectionState.disconnected;
                     return buttons.Button(
                       text: isProgressing ? 'Connecting' : 'Start call',
                       isProgressing: isProgressing,
-                      onPressed: () => ctx.read<ctrl.AppCtrl>().connect(),
+                      onPressed: () => appCtrl.connect(),
                     );
                   },
                 ),

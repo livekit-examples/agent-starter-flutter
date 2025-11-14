@@ -5,7 +5,6 @@ import 'package:livekit_components/livekit_components.dart' as components;
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
-import '../exts.dart';
 import '../services/token_service.dart';
 
 enum AppScreenState { welcome, agent }
@@ -37,6 +36,7 @@ class AppCtrl extends ChangeNotifier {
   );
 
   bool isSendButtonEnabled = false;
+  bool isSessionStarting = false;
 
   AppCtrl() {
     final format = DateFormat('HH:mm:ss');
@@ -110,7 +110,15 @@ class AppCtrl extends ChangeNotifier {
   }
 
   void connect() async {
+    if (isSessionStarting) {
+      _logger.fine('Connection attempt ignored: session already starting.');
+      return;
+    }
+
     _logger.info('Starting session connection…');
+    isSessionStarting = true;
+    notifyListeners();
+
     try {
       await session.start();
       if (session.connectionState == sdk.ConnectionState.connected) {
@@ -121,6 +129,11 @@ class AppCtrl extends ChangeNotifier {
       _logger.severe('Connection error: $error', error, stackTrace);
       appScreenState = AppScreenState.welcome;
       notifyListeners();
+    } finally {
+      if (isSessionStarting) {
+        isSessionStarting = false;
+        notifyListeners();
+      }
     }
   }
 
