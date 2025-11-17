@@ -20,7 +20,7 @@ class FloatingGlassView extends StatelessWidget {
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
                 width: 1,
-                color: Theme.of(ctx).colorScheme.outline.withOpacity(0.2),
+                color: Theme.of(ctx).colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             child: child,

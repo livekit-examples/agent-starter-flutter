@@ -40,8 +40,8 @@ class WelcomeScreen extends StatelessWidget {
                           decorationThickness: 1,
                         ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            launchUrl(Uri.parse('https://docs.livekit.io/agents/start/voice-ai/'));
+                          ..onTap = () async {
+                            await launchUrl(Uri.parse('https://docs.livekit.io/agents/start/voice-ai/'));
                           },
                       ),
                       const TextSpan(

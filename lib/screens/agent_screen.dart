@@ -148,7 +148,7 @@ class AgentScreen extends StatelessWidget {
             buildScreenShareView: (ctx) => Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.3),
+                color: Colors.green.withValues(alpha: 0.3),
               ),
               child: const Text('Screenshare View'),
             ),
@@ -198,12 +198,12 @@ class _SessionMessagesViewState extends State<SessionMessagesView> {
     super.dispose();
   }
 
-  void _scrollToBottom() {
+  Future<void> _scrollToBottom() async {
     if (!_controller.hasClients) {
       return;
     }
     final position = _controller.position.maxScrollExtent;
-    _controller.animateTo(
+    await _controller.animateTo(
       position,
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
@@ -249,7 +249,7 @@ class _MessageBubble extends StatelessWidget {
     final bool isUser = _isUserMessage;
     final alignment = isUser ? Alignment.centerRight : Alignment.centerLeft;
     final colorScheme = Theme.of(context).colorScheme;
-    final background = isUser ? colorScheme.primary : colorScheme.surfaceVariant;
+    final background = isUser ? colorScheme.primary : colorScheme.surfaceContainerHighest;
     final foreground = isUser ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
 
     return Align(
@@ -294,7 +294,7 @@ class _AgentListeningPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.graphic_eq, size: 32, color: colorScheme.primary.withOpacity(0.7)),
+          Icon(Icons.graphic_eq, size: 32, color: colorScheme.primary.withValues(alpha: 0.7)),
           const SizedBox(height: 12),
           Text(
             'Agent is listening',

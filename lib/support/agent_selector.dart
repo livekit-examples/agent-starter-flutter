@@ -17,7 +17,7 @@ class AgentParticipantSelector extends StatelessWidget {
   Widget build(BuildContext ctx) => Selector<components.RoomContext, sdk.Participant?>(
         selector: (context, roomCtx) => roomCtx.agentParticipant,
         builder: (context, agentParticipant, child) => ChangeNotifierProvider<components.ParticipantContext?>(
-          key: ValueKey("AgentParticipantSelector-${agentParticipant?.sid}"),
+          key: ValueKey('AgentParticipantSelector-${agentParticipant?.sid}'),
           create: (context) => agentParticipant == null ? null : components.ParticipantContext(agentParticipant),
           child: builder(context, agentParticipant),
         ),
