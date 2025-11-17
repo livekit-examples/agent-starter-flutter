@@ -65,8 +65,7 @@ class TokenService {
   }
 
   // LiveKit Cloud sandbox API endpoint
-  final String sandboxUrl =
-      'https://cloud-api.livekit.io/api/sandbox/connection-details';
+  final String sandboxUrl = 'https://cloud-api.livekit.io/api/sandbox/connection-details';
 
   /// Main method to get connection details
   /// First tries hardcoded credentials, then falls back to sandbox
@@ -113,14 +112,11 @@ class TokenService {
           final data = jsonDecode(response.body);
           return ConnectionDetails.fromJson(data);
         } catch (e) {
-          _logger.severe(
-              'Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
-          throw Exception(
-              'Error parsing connection details from LiveKit Cloud sandbox');
+          _logger.severe('Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
+          throw Exception('Error parsing connection details from LiveKit Cloud sandbox');
         }
       } else {
-        _logger.severe(
-            'Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
+        _logger.severe('Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
         throw Exception('Error from LiveKit Cloud sandbox');
       }
     } catch (e) {
@@ -166,8 +162,8 @@ class TokenServiceTokenSource implements sdk.TokenSourceConfigurable {
     return sdk.TokenSourceResponse(
       serverUrl: details.serverUrl,
       participantToken: details.participantToken,
-      participantName: details.participantName ?? participantName,
-      roomName: details.roomName ?? roomName,
+      participantName: details.participantName,
+      roomName: details.roomName,
     );
   }
 

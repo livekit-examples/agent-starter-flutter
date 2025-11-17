@@ -22,17 +22,14 @@ class WelcomeScreen extends StatelessWidget {
                   'assets/terminal.png',
                   width: 80,
                   height: 80,
-                  color: Theme.brightnessOf(ctx) == Brightness.light
-                      ? Colors.black
-                      : Colors.white,
+                  color: Theme.brightnessOf(ctx) == Brightness.light ? Colors.black : Colors.white,
                 ),
                 Text.rich(
                   textAlign: TextAlign.center,
                   TextSpan(
                     children: [
                       const TextSpan(
-                        text:
-                            'Start a call to chat with your voice agent. Need help getting set up? Check out the ',
+                        text: 'Start a call to chat with your voice agent. Need help getting set up? Check out the ',
                       ),
                       TextSpan(
                         text: 'Voice AI quickstart',
@@ -44,8 +41,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            launchUrl(Uri.parse(
-                                'https://docs.livekit.io/agents/start/voice-ai/'));
+                            launchUrl(Uri.parse('https://docs.livekit.io/agents/start/voice-ai/'));
                           },
                       ),
                       const TextSpan(
@@ -60,8 +56,7 @@ class WelcomeScreen extends StatelessWidget {
                     opacity: session.agent.canListen ? 1.0 : 0.0,
                     duration: const Duration(milliseconds: 300),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -85,9 +80,8 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 Consumer2<ctrl.AppCtrl, sdk.Session>(
                   builder: (ctx, appCtrl, session, child) {
-                    final isProgressing = appCtrl.isSessionStarting ||
-                        session.connectionState !=
-                            sdk.ConnectionState.disconnected;
+                    final isProgressing =
+                        appCtrl.isSessionStarting || session.connectionState != sdk.ConnectionState.disconnected;
                     return buttons.Button(
                       text: isProgressing ? 'Connecting' : 'Start call',
                       isProgressing: isProgressing,

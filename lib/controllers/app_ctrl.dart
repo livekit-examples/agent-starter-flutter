@@ -27,8 +27,7 @@ class AppCtrl extends ChangeNotifier {
   final messageFocusNode = FocusNode();
 
   final tokenService = TokenService();
-  late final sdk.Room room =
-      sdk.Room(roomOptions: const sdk.RoomOptions(enableVisualizer: true));
+  late final sdk.Room room = sdk.Room(roomOptions: const sdk.RoomOptions(enableVisualizer: true));
   late final roomContext = components.RoomContext(room: room);
   late final sdk.Session session = sdk.Session.fromConfigurableTokenSource(
     TokenServiceTokenSource(tokenService),
@@ -58,9 +57,9 @@ class AppCtrl extends ChangeNotifier {
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     session.removeListener(_handleSessionChange);
-    session.dispose();
+    await session.dispose();
     roomContext.dispose();
     messageCtrl.dispose();
     messageFocusNode.dispose();
@@ -74,20 +73,7 @@ class AppCtrl extends ChangeNotifier {
     messageCtrl.clear();
     notifyListeners();
 
-    final lp = room.localParticipant;
-    if (lp == null || text.isEmpty) return;
-
-    final nowUtc = DateTime.now().toUtc();
-    final segment = sdk.TranscriptionSegment(
-        id: uuid.v4(),
-        text: text,
-        firstReceivedTime: nowUtc,
-        lastReceivedTime: nowUtc,
-        isFinal: true,
-        language: 'en');
-    roomContext.insertTranscription(
-        components.TranscriptionForParticipant(segment, lp));
-
+    if (text.isEmpty) return;
     await session.sendText(text);
   }
 
@@ -103,9 +89,8 @@ class AppCtrl extends ChangeNotifier {
   }
 
   void toggleAgentScreenMode() {
-    agentScreenState = agentScreenState == AgentScreenState.visualizer
-        ? AgentScreenState.transcription
-        : AgentScreenState.visualizer;
+    agentScreenState =
+        agentScreenState == AgentScreenState.visualizer ? AgentScreenState.transcription : AgentScreenState.visualizer;
     notifyListeners();
   }
 
@@ -139,6 +124,7 @@ class AppCtrl extends ChangeNotifier {
 
   void disconnect() async {
     await session.end();
+    session.restoreMessageHistory(const []);
     appScreenState = AppScreenState.welcome;
     agentScreenState = AgentScreenState.visualizer;
     notifyListeners();
