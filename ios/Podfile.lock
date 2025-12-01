@@ -7,7 +7,7 @@ PODS:
   - flutter_webrtc (1.2.0):
     - Flutter
     - WebRTC-SDK (= 137.7151.04)
-  - livekit_client (2.5.3):
+  - livekit_client (2.5.4):
     - Flutter
     - flutter_webrtc
     - WebRTC-SDK (= 137.7151.04)
@@ -52,7 +52,7 @@ SPEC CHECKSUMS:
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_webrtc: c3e21fc0dcd9d8eb246ae4d5256fcbeb2f5ecd22
-  livekit_client: 86c8af579274e4b7a215185a8080db2d4e176f40
+  livekit_client: 53ca658779b78710fb458cccee28b53a13356c15
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   WebRTC-SDK: 40d4f5ba05cadff14e4db5614aec402a633f007e
