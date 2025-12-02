@@ -159,7 +159,22 @@ class AgentScreen extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => ctx.read<AppCtrl>().messageFocusNode.unfocus(),
-                    child: const SessionMessagesView(),
+                    child: Consumer<sdk.Session>(
+                      builder: (context, session, _) {
+                        if (session.messages.isEmpty) {
+                          return _AgentListeningPlaceholder(canListen: session.agent.canListen);
+                        }
+                        return components.ChatScrollView(
+                          session: session,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                          physics: const BouncingScrollPhysics(),
+                          messageBuilder: (context, message) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _MessageBubble(message: message),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Padding(
@@ -180,56 +195,6 @@ class AgentScreen extends StatelessWidget {
           ),
         ),
       );
-}
-
-class SessionMessagesView extends StatefulWidget {
-  const SessionMessagesView({super.key});
-
-  @override
-  State<SessionMessagesView> createState() => _SessionMessagesViewState();
-}
-
-class _SessionMessagesViewState extends State<SessionMessagesView> {
-  final ScrollController _controller = ScrollController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _scrollToBottom() async {
-    if (!_controller.hasClients) {
-      return;
-    }
-    final position = _controller.position.maxScrollExtent;
-    await _controller.animateTo(
-      position,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<sdk.Session>(
-      builder: (context, session, _) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-        final messages = session.messages;
-        if (messages.isEmpty) {
-          return _AgentListeningPlaceholder(canListen: session.agent.canListen);
-        }
-        return ListView.separated(
-          controller: _controller,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          itemCount: messages.length,
-          physics: const BouncingScrollPhysics(),
-          itemBuilder: (context, index) => _MessageBubble(message: messages[index]),
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-        );
-      },
-    );
-  }
 }
 
 class _MessageBubble extends StatelessWidget {

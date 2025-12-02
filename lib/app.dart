@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livekit_components/livekit_components.dart' as components;
 import 'package:provider/provider.dart';
 
 import 'controllers/app_ctrl.dart';
@@ -60,18 +61,21 @@ class VoiceAssistantApp extends StatelessWidget {
           ChangeNotifierProvider.value(value: appCtrl.session),
           ChangeNotifierProvider.value(value: appCtrl.roomContext),
         ],
-        child: MaterialApp(
-          title: 'Voice Assistant',
-          theme: buildTheme(isLight: true),
-          darkTheme: buildTheme(isLight: false),
-          // themeMode: ThemeMode.dark,
-          home: Builder(
-            builder: (ctx) => Selector<AppCtrl, AppScreenState>(
-              selector: (ctx, appCtx) => appCtx.appScreenState,
-              builder: (ctx, screen, _) => AppLayoutSwitcher(
-                frontBuilder: (ctx) => const WelcomeScreen(),
-                backBuilder: (ctx) => const AgentScreen(),
-                isFront: screen == AppScreenState.welcome,
+        child: components.SessionScope(
+          session: appCtrl.session,
+          child: MaterialApp(
+            title: 'Voice Assistant',
+            theme: buildTheme(isLight: true),
+            darkTheme: buildTheme(isLight: false),
+            // themeMode: ThemeMode.dark,
+            home: Builder(
+              builder: (ctx) => Selector<AppCtrl, AppScreenState>(
+                selector: (ctx, appCtx) => appCtx.appScreenState,
+                builder: (ctx, screen, _) => AppLayoutSwitcher(
+                  frontBuilder: (ctx) => const WelcomeScreen(),
+                  backBuilder: (ctx) => const AgentScreen(),
+                  isFront: screen == AppScreenState.welcome,
+                ),
               ),
             ),
           ),
