@@ -26,11 +26,10 @@ class AppCtrl extends ChangeNotifier {
   final messageCtrl = TextEditingController();
   final messageFocusNode = FocusNode();
 
-  final tokenService = TokenService();
   late final sdk.Room room = sdk.Room(roomOptions: const sdk.RoomOptions(enableVisualizer: true));
   late final roomContext = components.RoomContext(room: room);
   late final sdk.Session session = sdk.Session.fromConfigurableTokenSource(
-    TokenServiceTokenSource(tokenService),
+    TokenServiceTokenSource(TokenService()),
     options: sdk.SessionOptions(room: room),
   );
 

@@ -61,7 +61,7 @@ class VoiceAssistantApp extends StatelessWidget {
           ChangeNotifierProvider.value(value: appCtrl.session),
           ChangeNotifierProvider.value(value: appCtrl.roomContext),
         ],
-        child: components.SessionScope(
+        child: components.SessionContext(
           session: appCtrl.session,
           child: MaterialApp(
             title: 'Voice Assistant',
