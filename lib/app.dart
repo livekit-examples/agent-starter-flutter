@@ -7,6 +7,7 @@ import 'screens/agent_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'ui/color_pallette.dart' show LKColorPaletteLight, LKColorPaletteDark;
 import 'widgets/app_layout_switcher.dart';
+import 'widgets/session_error_banner.dart';
 
 final appCtrl = AppCtrl();
 
@@ -69,13 +70,18 @@ class VoiceAssistantApp extends StatelessWidget {
             darkTheme: buildTheme(isLight: false),
             // themeMode: ThemeMode.dark,
             home: Builder(
-              builder: (ctx) => Selector<AppCtrl, AppScreenState>(
-                selector: (ctx, appCtx) => appCtx.appScreenState,
-                builder: (ctx, screen, _) => AppLayoutSwitcher(
-                  frontBuilder: (ctx) => const WelcomeScreen(),
-                  backBuilder: (ctx) => const AgentScreen(),
-                  isFront: screen == AppScreenState.welcome,
-                ),
+              builder: (ctx) => Stack(
+                children: [
+                  Selector<AppCtrl, AppScreenState>(
+                    selector: (ctx, appCtx) => appCtx.appScreenState,
+                    builder: (ctx, screen, _) => AppLayoutSwitcher(
+                      frontBuilder: (ctx) => const WelcomeScreen(),
+                      backBuilder: (ctx) => const AgentScreen(),
+                      isFront: screen == AppScreenState.welcome,
+                    ),
+                  ),
+                  const SessionErrorBanner(),
+                ],
               ),
             ),
           ),
