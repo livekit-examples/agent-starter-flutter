@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  livekit_components: ^1.2.3
+  livekit_components: ^1.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -44,18 +44,9 @@ dependencies:
   shimmer: ^3.0.0
   uuid: ^4.5.1
   flutter_sficon: ^1.2.0
-  intl: ^0.19.0
+  intl: ^0.20.0
   logging: ^1.3.0
 
-dependency_overrides:
-  livekit_client:
-    path: ../../livekit/client-sdk-flutter/
-  livekit_components:
-    path: ../../livekit/components-flutter/
-  flutter_webrtc:
-    path: ../../flutter-webrtc/flutter-webrtc/
-  intl: ^0.20.2
- 
 dev_dependencies:
   flutter_test:
     sdk: flutter
