@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:livekit_client/livekit_client.dart' as sdk;
@@ -35,6 +37,7 @@ class AppCtrl extends ChangeNotifier {
 
   bool isSendButtonEnabled = false;
   bool isSessionStarting = false;
+  bool _hasCleanedUp = false;
 
   AppCtrl() {
     final format = DateFormat('HH:mm:ss');
@@ -55,13 +58,21 @@ class AppCtrl extends ChangeNotifier {
     session.addListener(_handleSessionChange);
   }
 
-  @override
-  void dispose() async {
+  Future<void> cleanUp() async {
+    if (_hasCleanedUp) return;
+    _hasCleanedUp = true;
+
     session.removeListener(_handleSessionChange);
     await session.dispose();
+    await room.dispose();
     roomContext.dispose();
     messageCtrl.dispose();
     messageFocusNode.dispose();
+  }
+
+  @override
+  void dispose() {
+    unawaited(cleanUp());
     super.dispose();
   }
 
