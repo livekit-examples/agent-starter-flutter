@@ -147,10 +147,13 @@ class AppCtrl extends ChangeNotifier {
       case sdk.ConnectionState.connected:
       case sdk.ConnectionState.reconnecting:
         nextScreen = AppScreenState.agent;
+        break;
       case sdk.ConnectionState.disconnected:
         nextScreen = AppScreenState.welcome;
+        break;
       case sdk.ConnectionState.connecting:
         nextScreen = null;
+        break;
     }
 
     if (nextScreen != null && nextScreen != appScreenState) {
