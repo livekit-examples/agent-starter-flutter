@@ -132,7 +132,7 @@ class AppCtrl extends ChangeNotifier {
     }
   }
 
-  void disconnect() async {
+  Future<void> disconnect() async {
     await session.end();
     session.restoreMessageHistory(const []);
     appScreenState = AppScreenState.welcome;
