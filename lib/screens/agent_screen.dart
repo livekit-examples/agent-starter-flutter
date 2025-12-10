@@ -148,7 +148,7 @@ class AgentScreen extends StatelessWidget {
             buildScreenShareView: (ctx) => Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.3),
+                color: Colors.green.withValues(alpha: 0.3),
               ),
               child: const Text('Screenshare View'),
             ),
@@ -159,14 +159,21 @@ class AgentScreen extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => ctx.read<AppCtrl>().messageFocusNode.unfocus(),
-                    child: components.TranscriptionBuilder(
-                      builder: (context, transcriptions) => components.TranscriptionWidget(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        transcriptions: transcriptions,
-                      ),
+                    child: Consumer<sdk.Session>(
+                      builder: (context, session, _) {
+                        if (session.messages.isEmpty) {
+                          return _AgentListeningPlaceholder(canListen: session.agent.canListen);
+                        }
+                        return components.ChatScrollView(
+                          session: session,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                          physics: const BouncingScrollPhysics(),
+                          messageBuilder: (context, message) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _MessageBubble(message: message),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -188,4 +195,90 @@ class AgentScreen extends StatelessWidget {
           ),
         ),
       );
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message});
+
+  final sdk.ReceivedMessage message;
+
+  bool get _isUserMessage => message.content is sdk.UserInput || message.content is sdk.UserTranscript;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = message.content.text.trim();
+    if (text.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bool isUser = _isUserMessage;
+    final alignment = isUser ? Alignment.centerRight : Alignment.centerLeft;
+    final colorScheme = Theme.of(context).colorScheme;
+    final background = isUser ? colorScheme.primary : colorScheme.surfaceContainerHighest;
+    final foreground = isUser ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
+
+    return Align(
+      alignment: alignment,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(18),
+              topRight: const Radius.circular(18),
+              bottomLeft: Radius.circular(isUser ? 18 : 4),
+              bottomRight: Radius.circular(isUser ? 4 : 18),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: foreground),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AgentListeningPlaceholder extends StatelessWidget {
+  const _AgentListeningPlaceholder({required this.canListen});
+
+  final bool canListen;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.graphic_eq, size: 32, color: colorScheme.primary.withValues(alpha: 0.7)),
+          const SizedBox(height: 12),
+          Text(
+            'Agent is listening',
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (!canListen)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'Start a conversation to see messages here.',
+                style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                textAlign: TextAlign.center,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

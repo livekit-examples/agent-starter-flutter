@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart' show TapGestureRecognizer;
 import 'package:flutter/material.dart';
+import 'package:livekit_client/livekit_client.dart' as sdk;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
 import '../controllers/app_ctrl.dart' as ctrl;
@@ -39,8 +40,8 @@ class WelcomeScreen extends StatelessWidget {
                           decorationThickness: 1,
                         ),
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            launchUrl(Uri.parse('https://docs.livekit.io/agents/start/voice-ai/'));
+                          ..onTap = () async {
+                            await launchUrl(Uri.parse('https://docs.livekit.io/agents/start/voice-ai/'));
                           },
                       ),
                       const TextSpan(
@@ -49,16 +50,42 @@ class WelcomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                Builder(
-                  builder: (ctx) {
-                    final isProgressing = [
-                      ctrl.ConnectionState.connecting,
-                      ctrl.ConnectionState.connected,
-                    ].contains(ctx.watch<ctrl.AppCtrl>().connectionState);
+                // Agent listening indicator
+                Consumer<sdk.Session>(
+                  builder: (ctx, session, child) => AnimatedOpacity(
+                    opacity: session.agent.canListen ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.mic,
+                            color: Colors.green,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Agent is listening',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Consumer2<ctrl.AppCtrl, sdk.Session>(
+                  builder: (ctx, appCtrl, session, child) {
+                    final isProgressing =
+                        appCtrl.isSessionStarting || session.connectionState != sdk.ConnectionState.disconnected;
                     return buttons.Button(
                       text: isProgressing ? 'Connecting' : 'Start call',
                       isProgressing: isProgressing,
-                      onPressed: () => ctx.read<ctrl.AppCtrl>().connect(),
+                      onPressed: () => appCtrl.connect(),
                     );
                   },
                 ),

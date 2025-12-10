@@ -1,8 +1,7 @@
-import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:logging/logging.dart';
+import 'package:livekit_client/livekit_client.dart' as sdk;
 
 /// Data class representing the connection details needed to join a LiveKit room
 /// This includes the server URL, room name, participant info, and auth token
@@ -46,8 +45,6 @@ class ConnectionDetails {
 ///
 /// See https://docs.livekit.io/home/get-started/authentication for more information
 class TokenService {
-  static final _logger = Logger('TokenService');
-
   // For hardcoded token usage (development only)
   final String? hardcodedServerUrl = null;
   final String? hardcodedToken = null;
@@ -60,67 +57,6 @@ class TokenService {
       return value.replaceAll('"', '');
     }
     return null;
-  }
-
-  // LiveKit Cloud sandbox API endpoint
-  final String sandboxUrl = 'https://cloud-api.livekit.io/api/sandbox/connection-details';
-
-  /// Main method to get connection details
-  /// First tries hardcoded credentials, then falls back to sandbox
-  Future<ConnectionDetails> fetchConnectionDetails({
-    required String roomName,
-    required String participantName,
-  }) async {
-    final hardcodedDetails = fetchHardcodedConnectionDetails(
-      roomName: roomName,
-      participantName: participantName,
-    );
-
-    if (hardcodedDetails != null) {
-      return hardcodedDetails;
-    }
-
-    return await fetchConnectionDetailsFromSandbox(
-      roomName: roomName,
-      participantName: participantName,
-    );
-  }
-
-  Future<ConnectionDetails> fetchConnectionDetailsFromSandbox({
-    required String roomName,
-    required String participantName,
-  }) async {
-    if (sandboxId == null) {
-      throw Exception('Sandbox ID is not set');
-    }
-
-    final uri = Uri.parse(sandboxUrl).replace(queryParameters: {
-      'roomName': roomName,
-      'participantName': participantName,
-    });
-
-    try {
-      final response = await http.post(
-        uri,
-        headers: {'X-Sandbox-ID': sandboxId!},
-      );
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        try {
-          final data = jsonDecode(response.body);
-          return ConnectionDetails.fromJson(data);
-        } catch (e) {
-          _logger.severe('Error parsing connection details from LiveKit Cloud sandbox, response: ${response.body}');
-          throw Exception('Error parsing connection details from LiveKit Cloud sandbox');
-        }
-      } else {
-        _logger.severe('Error from LiveKit Cloud sandbox: ${response.statusCode}, response: ${response.body}');
-        throw Exception('Error from LiveKit Cloud sandbox');
-      }
-    } catch (e) {
-      _logger.severe('Failed to connect to LiveKit Cloud sandbox: $e');
-      throw Exception('Failed to connect to LiveKit Cloud sandbox');
-    }
   }
 
   ConnectionDetails? fetchHardcodedConnectionDetails({
@@ -138,4 +74,55 @@ class TokenService {
       participantToken: hardcodedToken!,
     );
   }
+}
+
+/// Bridges [TokenService] to the LiveKit Session API by implementing [TokenSourceConfigurable].
+class TokenServiceTokenSource implements sdk.TokenSourceConfigurable {
+  TokenServiceTokenSource(this._service);
+
+  final TokenService _service;
+  final Random _random = Random();
+
+  @override
+  Future<sdk.TokenSourceResponse> fetch(sdk.TokenRequestOptions options) async {
+    final roomName = options.roomName ?? _randomRoomName();
+    final participantName = options.participantName ?? _randomParticipantName();
+
+    // If hardcoded creds are provided (development only), return them as-is.
+    final hardcoded = _service.fetchHardcodedConnectionDetails(
+      roomName: roomName,
+      participantName: participantName,
+    );
+    if (hardcoded != null) {
+      return sdk.TokenSourceResponse(
+        serverUrl: hardcoded.serverUrl,
+        participantToken: hardcoded.participantToken,
+        participantName: hardcoded.participantName,
+        roomName: hardcoded.roomName,
+      );
+    }
+
+    final sandboxId = _service.sandboxId;
+    if (sandboxId == null) {
+      throw Exception('Sandbox ID is not set and no hardcoded token is configured.');
+    }
+
+    final resolvedOptions = sdk.TokenRequestOptions(
+      roomName: roomName,
+      participantName: participantName,
+      participantIdentity: options.participantIdentity,
+      participantMetadata: options.participantMetadata,
+      participantAttributes: options.participantAttributes,
+      agentName: options.agentName,
+      agentMetadata: options.agentMetadata,
+    );
+
+    // Use the SDK’s sandbox token source so agent dispatch options (agent name/metadata)
+    // are forwarded correctly to the token server.
+    final source = sdk.SandboxTokenSource(sandboxId: sandboxId);
+    return await source.fetch(resolvedOptions);
+  }
+
+  String _randomRoomName() => 'room-${1000 + _random.nextInt(9000)}';
+  String _randomParticipantName() => 'user-${1000 + _random.nextInt(9000)}';
 }
