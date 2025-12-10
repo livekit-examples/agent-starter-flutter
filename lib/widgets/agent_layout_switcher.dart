@@ -131,7 +131,10 @@ class AgentLayoutSwitcher extends StatelessWidget {
           children: [
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 110),
+                padding: EdgeInsets.only(
+                  top: singleCellHeight + topPadding,
+                  bottom: 110,
+                ),
                 child: transcriptionsBuilder(context),
               ),
             ),

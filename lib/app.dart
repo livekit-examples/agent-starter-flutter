@@ -70,18 +70,23 @@ class VoiceAssistantApp extends StatelessWidget {
             darkTheme: buildTheme(isLight: false),
             // themeMode: ThemeMode.dark,
             home: Builder(
-              builder: (ctx) => Stack(
-                children: [
-                  Selector<AppCtrl, AppScreenState>(
-                    selector: (ctx, appCtx) => appCtx.appScreenState,
-                    builder: (ctx, screen, _) => AppLayoutSwitcher(
-                      frontBuilder: (ctx) => const WelcomeScreen(),
-                      backBuilder: (ctx) => const AgentScreen(),
-                      isFront: screen == AppScreenState.welcome,
-                    ),
+              builder: (ctx) => Center(
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: 620),
+                  child: Stack(
+                    children: [
+                      Selector<AppCtrl, AppScreenState>(
+                        selector: (ctx, appCtx) => appCtx.appScreenState,
+                        builder: (ctx, screen, _) => AppLayoutSwitcher(
+                          frontBuilder: (ctx) => const WelcomeScreen(),
+                          backBuilder: (ctx) => const AgentScreen(),
+                          isFront: screen == AppScreenState.welcome,
+                        ),
+                      ),
+                      const SessionErrorBanner(),
+                    ],
                   ),
-                  const SessionErrorBanner(),
-                ],
+                ),
               ),
             ),
           ),
