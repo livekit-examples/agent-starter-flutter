@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart' as sdk;
 import 'package:provider/provider.dart';
 
+import '../controllers/app_ctrl.dart';
+
 /// Displays the latest session or agent error as a small banner.
 class SessionErrorBanner extends StatelessWidget {
   const SessionErrorBanner({super.key});
@@ -22,7 +24,7 @@ class SessionErrorBanner extends StatelessWidget {
           if (sessionError != null) {
             session.dismissError();
           } else {
-            await session.end();
+            await context.read<AppCtrl>().disconnect();
           }
         }
 
