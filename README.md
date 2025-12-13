@@ -22,7 +22,7 @@ Then, run the following command to automatically clone this template and connect
 lk app create --template agent-starter-flutter --sandbox <token_server_sandbox_id>
 ```
 
-Install dependencies and run the app:
+This will create a new Flutter project in the current directory. Install dependencies and run the app:
 ```bash
 flutter pub get
 flutter run
@@ -31,11 +31,11 @@ flutter run
 Note: You may need to configure signing certificates in Xcode if building to a real iOS device.
 
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and then either create a `.env` with a `LIVEKIT_SANDBOX_ID` (if using a [Sandbox Token Server](https://cloud.livekit.io/projects/p_/sandbox/templates/token-server)), or edit the development-only `hardcodedServerUrl` / `hardcodedToken` in `lib/controllers/app_ctrl.dart`.
+> To setup without the LiveKit CLI, clone the repository and then either create a `.env` with a `LIVEKIT_SANDBOX_ID` (if using a [Sandbox Token Server](https://cloud.livekit.io/projects/p_/sandbox/templates/token-server)), or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
 
 ## Feature overview
 
-This starter app supports several LiveKit Agents features and is intended as a base you can adapt for your own use case.
+This starter app supports several features of the agents framework and is intended as a base you can adapt for your own use case.
 
 ### Text, video, and voice input
 
@@ -52,6 +52,8 @@ Related docs:
 - Vision/video: https://docs.livekit.io/agents/build/vision/#video
 - Screen share: https://docs.livekit.io/home/client/tracks/screenshare/
 
+If you have trouble with screen sharing, refer to the docs linked above for more setup instructions.
+
 ### Session
 
 The app is built around two core concepts:
@@ -61,7 +63,7 @@ The app is built around two core concepts:
 
 ### Preconnect audio buffer
 
-By default, `preConnectAudio` is enabled (via the SDK default `SessionOptions`). This captures and buffers microphone audio before the room connection completes so the UX feels more "instant".
+This app enables `preConnectAudio` by default to capture and buffer audio before the room connection completes. This allows the connection to appear "instant" from the user's perspective and makes the app more responsive.
 
 To disable this feature, set `preConnectAudio` to `false` in `SessionOptions` when creating the `Session` (see `lib/controllers/app_ctrl.dart`).
 
@@ -73,11 +75,11 @@ If your agent publishes a video track (for example via a [virtual avatar](https:
 
 In a production environment, you will be responsible for developing a solution to [generate tokens for your users](https://docs.livekit.io/home/server/generating-tokens/) that integrates with your authentication system.
 
-You should replace the sandbox token source in `lib/controllers/app_ctrl.dart` with an `EndpointTokenSource` or your own `TokenSourceFixed` / `TokenSourceConfigurable` implementation. You can also use `.cached()` to cache valid tokens and avoid unnecessary token requests.
+You should replace the `SandboxTokenSource` in `lib/controllers/app_ctrl.dart` with an `EndpointTokenSource` or your own `TokenSourceFixed` / `TokenSourceConfigurable` implementation. You can also use `.cached()` to cache valid tokens and avoid unnecessary token requests.
 
 ## Running on Simulator / Emulator
 
-To use this template with video (or screen sharing) input, you may need to run the app on a physical device depending on platform and simulator/emulator capabilities. If you run into limitations, test on a real device.
+To use this template with video (or screen sharing) input, you may need to run the app on a physical device depending on platform and simulator/emulator capabilities. Testing on Simulator/Emulator will still support voice and text modes.
 
 ## Contributing
 
