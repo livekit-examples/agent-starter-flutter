@@ -6,8 +6,7 @@ import 'package:livekit_client/livekit_client.dart' as sdk;
 import 'package:livekit_components/livekit_components.dart' as components;
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
-
-import '../services/token_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 enum AppScreenState { welcome, agent }
 
@@ -30,10 +29,33 @@ class AppCtrl extends ChangeNotifier {
 
   late final sdk.Room room = sdk.Room(roomOptions: const sdk.RoomOptions(enableVisualizer: true));
   late final roomContext = components.RoomContext(room: room);
-  late final sdk.Session session = sdk.Session.fromConfigurableTokenSource(
-    TokenServiceTokenSource(TokenService()),
-    options: sdk.SessionOptions(room: room),
-  );
+  late final sdk.Session session = _createSession(room: room);
+
+  static sdk.Session _createSession({required sdk.Room room}) {
+    // Development-only hardcoded credentials (optional).
+    const hardcodedServerUrl = null; // e.g. 'wss://your-host'
+    const hardcodedToken = null; // e.g. 'eyJ...'
+
+    if (hardcodedServerUrl != null && hardcodedToken != null) {
+      return sdk.Session.fromFixedTokenSource(
+        sdk.LiteralTokenSource(
+          serverUrl: hardcodedServerUrl,
+          participantToken: hardcodedToken,
+        ),
+        options: sdk.SessionOptions(room: room),
+      );
+    }
+
+    final sandboxId = dotenv.env['LIVEKIT_SANDBOX_ID']?.replaceAll('"', '');
+    if (sandboxId == null || sandboxId.isEmpty) {
+      throw StateError('LIVEKIT_SANDBOX_ID is not set and no hardcoded token is configured.');
+    }
+
+    return sdk.Session.fromConfigurableTokenSource(
+      sdk.SandboxTokenSource(sandboxId: sandboxId).cached(),
+      options: sdk.SessionOptions(room: room),
+    );
+  }
 
   bool isSendButtonEnabled = false;
   bool isSessionStarting = false;
