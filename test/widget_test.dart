@@ -14,6 +14,7 @@ void main() {
   testWidgets('App builds successfully', (WidgetTester tester) async {
     await dotenv.load(
       fileName: '.env',
+      isOptional: true,
       mergeWith: const {
         'LIVEKIT_SANDBOX_ID': 'test',
       },
