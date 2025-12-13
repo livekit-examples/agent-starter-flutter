@@ -6,11 +6,19 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:voice_assistant/app.dart';
 
 void main() {
   testWidgets('App builds successfully', (WidgetTester tester) async {
+    await dotenv.load(
+      fileName: '.env',
+      mergeWith: const {
+        'LIVEKIT_SANDBOX_ID': 'test',
+      },
+    );
+
     // Build our app and trigger a frame.
     await tester.pumpWidget(const VoiceAssistantApp());
     // Dispose resources started by the global controller to avoid pending timers.
