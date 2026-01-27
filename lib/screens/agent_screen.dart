@@ -93,7 +93,7 @@ class FrontView extends StatelessWidget {
                       filter: (identifier) => identifier.isVideo && identifier.isLocal,
                       builder: (context, identifier) => components.VideoTrackWidget(
                         fit: sdk.VideoViewFit.cover,
-                        noTrackBuilder: (ctx) => Container(),
+                        noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
                       ),
                     ),
                   ),
@@ -131,7 +131,7 @@ class AgentScreen extends StatelessWidget {
                     children: [
                       components.VideoTrackWidget(
                         fit: sdk.VideoViewFit.cover,
-                        noTrackBuilder: (ctx) => Container(),
+                        noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
                       ),
                       Positioned(
                         right: 10,
