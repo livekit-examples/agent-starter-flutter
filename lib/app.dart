@@ -20,6 +20,8 @@ class VoiceAssistantApp extends StatelessWidget {
     return ThemeData(
       useMaterial3: true,
       cardColor: colorPallete.bg2,
+      scaffoldBackgroundColor: colorPallete.bg1,
+      canvasColor: colorPallete.bg1,
       inputDecorationTheme: InputDecorationTheme(
         fillColor: colorPallete.bg2,
         hintStyle: TextStyle(
