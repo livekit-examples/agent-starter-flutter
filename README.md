@@ -12,9 +12,9 @@ This template is compatible with iOS, macOS, Android, and web. It is free for yo
 
 First, you'll need a LiveKit agent to speak with. Try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
 
-Second, you need a token server. The easiest way to set this up is with the [Sandbox for LiveKit Cloud](https://cloud.livekit.io/projects/p_/sandbox) and the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup/).
+Second, you need a token server. The easiest way to set this up is with a [token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/) and the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup/).
 
-First, create a new [Sandbox Token Server](https://cloud.livekit.io/projects/p_/sandbox/templates/token-server) for your LiveKit Cloud project.
+First, enable the token server from your project's **Options** at the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxId`.
 
 Then, run the following command to automatically clone this template and connect it to LiveKit Cloud.
 
@@ -31,7 +31,7 @@ flutter run
 Note: You may need to configure signing certificates in Xcode if building to a real iOS device.
 
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and then either create a `.env` with a `LIVEKIT_SANDBOX_ID` (if using a [Sandbox Token Server](https://cloud.livekit.io/projects/p_/sandbox/templates/token-server)), or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
+> To setup without the LiveKit CLI, clone the repository and then either create a `.env` with a `LIVEKIT_SANDBOX_ID` (from your project's **Options** at the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
 
 ## Feature overview
 
