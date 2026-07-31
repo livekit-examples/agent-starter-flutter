@@ -31,7 +31,9 @@ flutter run
 Note: You may need to configure signing certificates in Xcode if building to a real iOS device.
 
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and then either create a `.env` with a `LIVEKIT_SANDBOX_ID` (from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
+> To setup without the LiveKit CLI, clone the repository and then either create an `assets/.env` file with a `LIVEKIT_SANDBOX_ID` (from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
+>
+> The env file is optional: without any configuration, the app connects to a default agent — the same one featured on the [LiveKit homepage](https://livekit.io) — so you can try it out right away.
 
 ## Feature overview
 
