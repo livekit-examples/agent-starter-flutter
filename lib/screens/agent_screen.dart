@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../controllers/app_ctrl.dart';
 import '../support/agent_selector.dart';
 import '../widgets/agent_layout_switcher.dart';
+import '../widgets/agent_status_indicator.dart';
 import '../widgets/camera_toggle_button.dart';
 import '../widgets/message_bar.dart';
 
@@ -115,84 +116,98 @@ class AgentScreen extends StatelessWidget {
             isCameraVisible: appCtrl.isUserCameEnabled,
             isScreenshareVisible: appCtrl.isScreenshareEnabled,
           ),
-          builder: (ctx, agentLayoutState, child) => AgentLayoutSwitcher(
-            layoutState: agentLayoutState,
-            // agentViewBuilder: (ctx) => AgentTrackView(),
-            buildAgentView: (ctx) => const AgentTrackView(),
-            buildCameraView: (ctx) => Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: components.MediaDeviceContextBuilder(
-                builder: (context, roomCtx, mediaDeviceCtx) => components.ParticipantSelector(
-                  filter: (identifier) => identifier.isVideo && identifier.isLocal,
-                  builder: (context, identifier) => Stack(
-                    children: [
-                      components.VideoTrackWidget(
-                        fit: sdk.VideoViewFit.cover,
-                        noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
-                      ),
-                      Positioned(
-                        right: 10,
-                        bottom: 10,
-                        child: CameraToggleButton(
-                          onTap: () => mediaDeviceCtx.toggleCameraPosition(),
-                        ),
-                      ),
-                    ],
-                  ),
+          builder: (ctx, agentLayoutState, child) => Stack(
+            children: [
+              _buildLayoutSwitcher(ctx, agentLayoutState),
+              // In transcription mode the chat placeholder shows the agent
+              // status instead.
+              if (!agentLayoutState.isTranscriptionVisible)
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 110,
+                  child: Center(child: AgentStatusIndicator(hideWhenConnected: true)),
                 ),
-              ),
-            ),
-            buildScreenShareView: (ctx) => Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.3),
-              ),
-              child: const Text('Screenshare View'),
-            ),
-            transcriptionsBuilder: (ctx) => Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => ctx.read<AppCtrl>().messageFocusNode.unfocus(),
-                    child: Consumer<sdk.Session>(
-                      builder: (context, session, _) {
-                        if (session.messages.isEmpty) {
-                          return _AgentStatusPlaceholder(isAgentConnected: session.agent.isConnected);
-                        }
-                        return components.ChatScrollView(
-                          session: session,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                          physics: const BouncingScrollPhysics(),
-                          messageBuilder: (context, message) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _MessageBubble(message: message),
-                          ),
-                        );
-                      },
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildLayoutSwitcher(BuildContext ctx, AgentLayoutState agentLayoutState) => AgentLayoutSwitcher(
+        layoutState: agentLayoutState,
+        // agentViewBuilder: (ctx) => AgentTrackView(),
+        buildAgentView: (ctx) => const AgentTrackView(),
+        buildCameraView: (ctx) => Container(
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: components.MediaDeviceContextBuilder(
+            builder: (context, roomCtx, mediaDeviceCtx) => components.ParticipantSelector(
+              filter: (identifier) => identifier.isVideo && identifier.isLocal,
+              builder: (context, identifier) => Stack(
+                children: [
+                  components.VideoTrackWidget(
+                    fit: sdk.VideoViewFit.cover,
+                    noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
+                  ),
+                  Positioned(
+                    right: 10,
+                    bottom: 10,
+                    child: CameraToggleButton(
+                      onTap: () => mediaDeviceCtx.toggleCameraPosition(),
                     ),
                   ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.only(left: 16, right: 16, bottom: max(0, MediaQuery.of(ctx).viewInsets.bottom - 80)),
-                  child: Selector<AppCtrl, bool>(
-                    selector: (ctx, appCtx) => appCtx.isSendButtonEnabled,
-                    builder: (ctx, isSendEnabled, child) => MessageBar(
-                      focusNode: ctx.read<AppCtrl>().messageFocusNode,
-                      isSendEnabled: isSendEnabled,
-                      controller: ctx.read<AppCtrl>().messageCtrl,
-                      onSendTap: () => ctx.read<AppCtrl>().sendMessage(),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+        ),
+        buildScreenShareView: (ctx) => Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.green.withValues(alpha: 0.3),
+          ),
+          child: const Text('Screenshare View'),
+        ),
+        transcriptionsBuilder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => ctx.read<AppCtrl>().messageFocusNode.unfocus(),
+                child: Consumer<sdk.Session>(
+                  builder: (context, session, _) {
+                    if (session.messages.isEmpty) {
+                      return _AgentStatusPlaceholder(isAgentConnected: session.agent.isConnected);
+                    }
+                    return components.ChatScrollView(
+                      session: session,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      physics: const BouncingScrollPhysics(),
+                      messageBuilder: (context, message) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _MessageBubble(message: message),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: max(0, MediaQuery.of(ctx).viewInsets.bottom - 80)),
+              child: Selector<AppCtrl, bool>(
+                selector: (ctx, appCtx) => appCtx.isSendButtonEnabled,
+                builder: (ctx, isSendEnabled, child) => MessageBar(
+                  focusNode: ctx.read<AppCtrl>().messageFocusNode,
+                  isSendEnabled: isSendEnabled,
+                  controller: ctx.read<AppCtrl>().messageCtrl,
+                  onSendTap: () => ctx.read<AppCtrl>().sendMessage(),
+                ),
+              ),
+            ),
+          ],
         ),
       );
 }
