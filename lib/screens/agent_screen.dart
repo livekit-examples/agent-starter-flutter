@@ -162,7 +162,7 @@ class AgentScreen extends StatelessWidget {
                     child: Consumer<sdk.Session>(
                       builder: (context, session, _) {
                         if (session.messages.isEmpty) {
-                          return _AgentListeningPlaceholder(canListen: session.agent.canListen);
+                          return _AgentStatusPlaceholder(isAgentConnected: session.agent.isConnected);
                         }
                         return components.ChatScrollView(
                           session: session,
@@ -246,10 +246,10 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-class _AgentListeningPlaceholder extends StatelessWidget {
-  const _AgentListeningPlaceholder({required this.canListen});
+class _AgentStatusPlaceholder extends StatelessWidget {
+  const _AgentStatusPlaceholder({required this.isAgentConnected});
 
-  final bool canListen;
+  final bool isAgentConnected;
 
   @override
   Widget build(BuildContext context) {
@@ -262,13 +262,13 @@ class _AgentListeningPlaceholder extends StatelessWidget {
           Icon(Icons.graphic_eq, size: 32, color: colorScheme.primary.withValues(alpha: 0.7)),
           const SizedBox(height: 12),
           Text(
-            'Agent is listening',
+            isAgentConnected ? 'Agent is listening' : 'Waiting for agent',
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
-          if (!canListen)
+          if (isAgentConnected)
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
