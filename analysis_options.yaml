@@ -16,6 +16,16 @@
 include: package:lints/recommended.yaml
 
 analyzer:
+  exclude:
+    # Xcode vendors Swift package checkouts under build when Swift Package
+    # Manager is enabled, livekit_client ships Package.swift since 2.10.0.
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
   errors:
     constant_identifier_names: ignore
     no_wildcard_variable_uses: ignore
