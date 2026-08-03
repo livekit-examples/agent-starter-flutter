@@ -8,6 +8,8 @@ import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+final String homepageAgentTokenEndpoint = 'https://livekit.com/api/homepage-agent/token';
+
 enum AppScreenState { welcome, agent }
 
 enum AgentScreenState { visualizer, transcription }
@@ -47,12 +49,15 @@ class AppCtrl extends ChangeNotifier {
     }
 
     final sandboxId = dotenv.env['LIVEKIT_SANDBOX_ID']?.replaceAll('"', '');
-    if (sandboxId == null || sandboxId.isEmpty) {
-      throw StateError('LIVEKIT_SANDBOX_ID is not set and no hardcoded token is configured.');
+    sdk.EndpointTokenSource tokenSource;
+    if (sandboxId == null || sandboxId.isEmpty || sandboxId == '<your-sandbox-id>') {
+      tokenSource = sdk.EndpointTokenSource(url: Uri.parse(homepageAgentTokenEndpoint));
+    } else {
+      tokenSource = sdk.SandboxTokenSource(sandboxId: sandboxId);
     }
 
     return sdk.Session.fromConfigurableTokenSource(
-      sdk.SandboxTokenSource(sandboxId: sandboxId).cached(),
+      tokenSource,
       options: sdk.SessionOptions(room: room),
     );
   }

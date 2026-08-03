@@ -10,16 +10,10 @@ This template is compatible with iOS, macOS, Android, and web. It is free for yo
 
 ## Getting started
 
-First, you'll need a LiveKit agent to speak with. Try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
-
-Second, you need a token server. The easiest way to set this up is with a [token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/) and the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup/).
-
-First, enable the token server from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxId`.
-
-Then, run the following command to automatically clone this template and connect it to LiveKit Cloud.
+Run the following command to automatically clone this template and connect it to LiveKit Cloud.
 
 ```bash
-lk app create --template agent-starter-flutter --sandbox <token_server_sandbox_id>
+lk app create --template agent-starter-flutter
 ```
 
 This will create a new Flutter project in the current directory. Install dependencies and run the app:
@@ -30,8 +24,24 @@ flutter run
 
 Note: You may need to configure signing certificates in Xcode if building to a real iOS device.
 
+The app is configured to connect to the LiveKit homepage agent by default, which you can also try at [livekit.com](https://www.livekit.com). To point the app at your own agent (see [Connect to your agent](#connect-to-your-agent)).
+
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and then either create a `.env` with a `LIVEKIT_SANDBOX_ID` (from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
+> To setup without the LiveKit CLI, clone the repository and then either create the `assets/.env` file manually from a copy of `.env.example`. The env file is optional: without any configuration, the app connects to a default agent — the same one featured on the [LiveKit homepage](https://livekit.io) — so you can try it out right away.
+
+## Connect to your agent
+
+To switch from the default agent to your own, you first need a LiveKit agent to speak with. For a no-code setup, use the [Agent Builder](https://docs.livekit.io/agents/start/builder/). For more customization, try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
+
+Second, you need a token server. For development, the easiest option is the [sandbox token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/): enable it from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxId`.
+
+Then fill the `LIVEKIT_SANDBOX_ID` in your `assets/.env`:
+
+```swift
+LIVEKIT_SANDBOX_ID=<your-sandbox-id>
+```
+
+or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
 
 ## Feature overview
 

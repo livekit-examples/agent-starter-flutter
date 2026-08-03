@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  env_file: ".env"
+  env_file: "assets/.env"
 
 tasks:
   post_create:

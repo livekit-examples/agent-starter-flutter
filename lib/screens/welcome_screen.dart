@@ -4,6 +4,7 @@ import 'package:livekit_client/livekit_client.dart' as sdk;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
 import '../controllers/app_ctrl.dart' as ctrl;
+import '../widgets/agent_status_indicator.dart';
 import '../widgets/button.dart' as buttons;
 
 class WelcomeScreen extends StatelessWidget {
@@ -50,34 +51,8 @@ class WelcomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Agent listening indicator
-                Consumer<sdk.Session>(
-                  builder: (ctx, session, child) => AnimatedOpacity(
-                    opacity: session.agent.canListen ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.mic,
-                            color: Colors.green,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Agent is listening',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                // Agent status indicator
+                const AgentStatusIndicator(),
                 Consumer2<ctrl.AppCtrl, sdk.Session>(
                   builder: (ctx, appCtrl, session, child) {
                     final isProgressing =
