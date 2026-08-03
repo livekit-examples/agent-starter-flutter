@@ -3,20 +3,17 @@ PODS:
     - FlutterMacOS
   - device_info_plus (0.0.1):
     - FlutterMacOS
-  - flutter_webrtc (1.2.0):
+  - flutter_webrtc (1.6.0):
     - FlutterMacOS
-    - WebRTC-SDK (= 137.7151.04)
+    - WebRTC-SDK (= 144.7559.09)
   - FlutterMacOS (1.0.0)
-  - livekit_client (2.6.1):
+  - livekit_client (2.10.0):
     - flutter_webrtc
     - FlutterMacOS
-    - WebRTC-SDK (= 137.7151.04)
-  - path_provider_foundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
+    - WebRTC-SDK (= 144.7559.09)
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
-  - WebRTC-SDK (137.7151.04)
+  - WebRTC-SDK (144.7559.09)
 
 DEPENDENCIES:
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
@@ -24,7 +21,6 @@ DEPENDENCIES:
   - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - livekit_client (from `Flutter/ephemeral/.symlinks/plugins/livekit_client/macos`)
-  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
 
 SPEC REPOS:
@@ -42,20 +38,17 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   livekit_client:
     :path: Flutter/ephemeral/.symlinks/plugins/livekit_client/macos
-  path_provider_foundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
 
 SPEC CHECKSUMS:
   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
   device_info_plus: 4fb280989f669696856f8b129e4a5e3cd6c48f76
-  flutter_webrtc: 718eae22a371cd94e5d56aa4f301443ebc5bb737
+  flutter_webrtc: 7dd2a2ad0e9c96dad0ae96c42d9a7786d96d8be6
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
-  livekit_client: 5568bc8a65cdfffc1fa3a6d4cd2a3233c77aca1d
-  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
+  livekit_client: ddb49dbc48273839e2c125d9edf11246ddc770da
   url_launcher_macos: f87a979182d112f911de6820aefddaf56ee9fbfd
-  WebRTC-SDK: 40d4f5ba05cadff14e4db5614aec402a633f007e
+  WebRTC-SDK: e6006119cd730d6315d875e4a421b6cc8bb88833
 
 PODFILE CHECKSUM: 9ebaf0ce3d369aaa26a9ea0e159195ed94724cf3
 
