@@ -34,16 +34,22 @@ class AppCtrl extends ChangeNotifier {
   late final sdk.Session session = _createSession(room: room);
 
   static sdk.Session _createSession({required sdk.Room room}) {
-    // Development-only hardcoded credentials (optional).
-    const hardcodedServerUrl = null; // e.g. 'wss://your-host'
-    const hardcodedToken = null; // e.g. 'eyJ...'
-
-    if (hardcodedServerUrl != null && hardcodedToken != null) {
+    final envServerUrl = dotenv.env['LIVEKIT_URL']?.replaceAll('"', '');
+    final envToken = dotenv.env['LIVEKIT_TOKEN']?.replaceAll('"', '');
+    if (envServerUrl != null && envServerUrl.isNotEmpty && envToken != null && envToken.isNotEmpty) {
       return sdk.Session.fromFixedTokenSource(
         sdk.LiteralTokenSource(
-          serverUrl: hardcodedServerUrl,
-          participantToken: hardcodedToken,
+          serverUrl: envServerUrl,
+          participantToken: envToken,
         ),
+        options: sdk.SessionOptions(room: room),
+      );
+    }
+
+    final tokenEndpoint = dotenv.env['LIVEKIT_TOKEN_ENDPOINT']?.replaceAll('"', '');
+    if (tokenEndpoint != null && tokenEndpoint.isNotEmpty) {
+      return sdk.Session.fromConfigurableTokenSource(
+        sdk.EndpointTokenSource(url: Uri.parse(tokenEndpoint)),
         options: sdk.SessionOptions(room: room),
       );
     }
@@ -53,7 +59,7 @@ class AppCtrl extends ChangeNotifier {
     if (sandboxId == null || sandboxId.isEmpty || sandboxId == '<your-sandbox-id>') {
       tokenSource = sdk.EndpointTokenSource(url: Uri.parse(homepageAgentTokenEndpoint));
     } else {
-      tokenSource = sdk.SandboxTokenSource(sandboxId: sandboxId);
+      tokenSource = sdk.DevelopmentTokenSource(id: sandboxId);
     }
 
     return sdk.Session.fromConfigurableTokenSource(
