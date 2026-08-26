@@ -1,55 +1,16 @@
 PODS:
-  - connectivity_plus (0.0.1):
-    - Flutter
-  - device_info_plus (0.0.1):
-    - Flutter
   - Flutter (1.0.0)
-  - flutter_webrtc (1.6.0):
-    - Flutter
-    - WebRTC-SDK (= 144.7559.09)
-  - livekit_client (2.10.0):
-    - Flutter
-    - flutter_webrtc
-    - WebRTC-SDK (= 144.7559.09)
-  - url_launcher_ios (0.0.1):
-    - Flutter
-  - WebRTC-SDK (144.7559.09)
 
 DEPENDENCIES:
-  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
-  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
-  - flutter_webrtc (from `.symlinks/plugins/flutter_webrtc/ios`)
-  - livekit_client (from `.symlinks/plugins/livekit_client/ios`)
-  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
-
-SPEC REPOS:
-  trunk:
-    - WebRTC-SDK
 
 EXTERNAL SOURCES:
-  connectivity_plus:
-    :path: ".symlinks/plugins/connectivity_plus/ios"
-  device_info_plus:
-    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
-  flutter_webrtc:
-    :path: ".symlinks/plugins/flutter_webrtc/ios"
-  livekit_client:
-    :path: ".symlinks/plugins/livekit_client/ios"
-  url_launcher_ios:
-    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
-  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
-  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_webrtc: f952258e6fa67477d481cfbad2885a4f117922a7
-  livekit_client: 6c0d36eefa88d025cd990f7af5feac2a5cedc346
-  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  WebRTC-SDK: e6006119cd730d6315d875e4a421b6cc8bb88833
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
 
-PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+PODFILE CHECKSUM: 53a6aebc29ccee84c41f92f409fc20cd4ca011f1
 
 COCOAPODS: 1.16.2
