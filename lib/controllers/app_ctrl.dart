@@ -48,12 +48,17 @@ class AppCtrl extends ChangeNotifier {
       );
     }
 
-    final sandboxId = dotenv.env['LIVEKIT_SANDBOX_ID']?.replaceAll('"', '');
+    // The development token server ID from your LiveKit Cloud project's Settings page.
+    // LIVEKIT_SANDBOX_ID is the former name of this setting and is still accepted.
+    final tokenServerId =
+        (dotenv.env['LIVEKIT_TOKEN_SERVER_ID'] ?? dotenv.env['LIVEKIT_SANDBOX_ID'])?.replaceAll('"', '');
+    const placeholderIds = {'<your-token-server-id>', '<your-sandbox-id>'};
+
     sdk.EndpointTokenSource tokenSource;
-    if (sandboxId == null || sandboxId.isEmpty || sandboxId == '<your-sandbox-id>') {
+    if (tokenServerId == null || tokenServerId.isEmpty || placeholderIds.contains(tokenServerId)) {
       tokenSource = sdk.EndpointTokenSource(url: Uri.parse(homepageAgentTokenEndpoint));
     } else {
-      tokenSource = sdk.SandboxTokenSource(sandboxId: sandboxId);
+      tokenSource = sdk.DevelopmentTokenSource(id: tokenServerId);
     }
 
     return sdk.Session.fromConfigurableTokenSource(

@@ -27,21 +27,26 @@ Note: You may need to configure signing certificates in Xcode if building to a r
 The app is configured to connect to the LiveKit homepage agent by default, which you can also try at [livekit.com](https://www.livekit.com). To point the app at your own agent (see [Connect to your agent](#connect-to-your-agent)).
 
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and then either create the `assets/.env` file manually from a copy of `.env.example`. The env file is optional: without any configuration, the app connects to a default agent — the same one featured on the [LiveKit homepage](https://livekit.io) — so you can try it out right away.
+> To setup without the LiveKit CLI, clone the repository and then create the `assets/.env` file manually from a copy of `.env.example`. The env file is optional: without any configuration, the app connects to a default agent — the same one featured on the [LiveKit homepage](https://livekit.io) — so you can try it out right away.
 
 ## Connect to your agent
 
 To switch from the default agent to your own, you first need a LiveKit agent to speak with. For a no-code setup, use the [Agent Builder](https://docs.livekit.io/agents/start/builder/). For more customization, try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
 
-Second, you need a token server. For development, the easiest option is the [sandbox token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/): enable it from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxId`.
+Second, you need a token server. For development, the easiest option is the [development token server](https://docs.livekit.io/frontends/build/authentication/development-token-server/): turn on the **Development token server** switch on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the **Token server ID**.
 
-Then fill the `LIVEKIT_SANDBOX_ID` in your `assets/.env`:
+Then fill the `LIVEKIT_TOKEN_SERVER_ID` in your `assets/.env`:
 
-```swift
-LIVEKIT_SANDBOX_ID=<your-sandbox-id>
+```sh
+LIVEKIT_TOKEN_SERVER_ID=<your-token-server-id>
 ```
 
-or modify `lib/controllers/app_ctrl.dart` to replace the `SandboxTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
+or modify `lib/controllers/app_ctrl.dart` to replace the `DevelopmentTokenSource` with your own token source implementation (development-only hardcoded credentials are also supported there).
+
+> [!NOTE]
+> The development token server is for prototyping only — any client can request a token with any permissions. See [Token generation in production](#token-generation-in-production) before you ship.
+>
+> This setting was previously called the *sandbox token server*, and `LIVEKIT_SANDBOX_ID` is still accepted as a fallback for existing `.env` files.
 
 ## Feature overview
 
@@ -85,7 +90,7 @@ If your agent publishes a video track (for example via a [virtual avatar](https:
 
 In a production environment, you will be responsible for developing a solution to [generate tokens for your users](https://docs.livekit.io/home/server/generating-tokens/) that integrates with your authentication system.
 
-You should replace the `SandboxTokenSource` in `lib/controllers/app_ctrl.dart` with an `EndpointTokenSource` or your own `TokenSourceFixed` / `TokenSourceConfigurable` implementation. You can also use `.cached()` to cache valid tokens and avoid unnecessary token requests.
+You should replace the `DevelopmentTokenSource` in `lib/controllers/app_ctrl.dart` with an `EndpointTokenSource` or your own `TokenSourceFixed` / `TokenSourceConfigurable` implementation. You can also use `.cached()` to cache valid tokens and avoid unnecessary token requests.
 
 ## Running on Simulator / Emulator
 

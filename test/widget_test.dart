@@ -16,7 +16,7 @@ void main() {
       fileName: 'assets/.env',
       isOptional: true,
       mergeWith: const {
-        'LIVEKIT_SANDBOX_ID': 'test',
+        'LIVEKIT_TOKEN_SERVER_ID': 'test',
       },
     );
 
