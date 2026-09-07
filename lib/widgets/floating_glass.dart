@@ -12,21 +12,21 @@ class FloatingGlassView extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) => ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          child: Container(
-            foregroundDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                width: 1,
-                color: Theme.of(ctx).colorScheme.outline.withValues(alpha: 0.2),
-              ),
-            ),
-            child: child,
+    borderRadius: BorderRadius.circular(100),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+      child: Container(
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(
+            width: 1,
+            color: Theme.of(ctx).colorScheme.outline.withValues(alpha: 0.2),
           ),
         ),
-      );
+        child: child,
+      ),
+    ),
+  );
 }
 
 class FloatingGlassButton extends StatelessWidget {
@@ -50,24 +50,24 @@ class FloatingGlassButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) => Material(
-        borderRadius: BorderRadius.circular(10),
-        clipBehavior: Clip.antiAlias,
-        type: MaterialType.transparency,
-        child: Ink(
-          color: isActive ? Theme.of(ctx).cardColor : null,
-          child: InkWell(
-            onTap: onTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 10,
-              ),
-              alignment: Alignment.center,
-              child: _buildContent(ctx),
-            ),
+    borderRadius: BorderRadius.circular(10),
+    clipBehavior: Clip.antiAlias,
+    type: MaterialType.transparency,
+    child: Ink(
+      color: isActive ? Theme.of(ctx).cardColor : null,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: 10,
+            horizontal: 10,
           ),
+          alignment: Alignment.center,
+          child: _buildContent(ctx),
         ),
-      );
+      ),
+    ),
+  );
 
   Widget _buildContent(BuildContext context) {
     if (subWidget != null) {

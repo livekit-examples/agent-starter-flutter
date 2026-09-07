@@ -13,85 +13,85 @@ class ControlBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) => FloatingGlassView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: 10,
-          ),
-          child: Row(
-            spacing: 5,
-            children: [
-              Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: components.MediaDeviceContextBuilder(
-                  builder: (context, roomCtx, mediaDeviceCtx) => FloatingGlassButton(
-                    sfIcon: mediaDeviceCtx.microphoneOpened
-                        ? sf.SFIcons.sf_microphone_fill
-                        : sf.SFIcons.sf_microphone_slash_fill,
-                    subWidget: components.ParticipantSelector(
-                      filter: (identifier) => identifier.isAudio && identifier.isLocal,
-                      builder: (context, identifier) => const SizedBox(
-                        width: 15,
-                        height: 15,
-                        child: components.AudioVisualizerWidget(
-                          options: components.AudioVisualizerWidgetOptions(
-                            barCount: 5,
-                            spacing: 1,
-                            // color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 10,
+      ),
+      child: Row(
+        spacing: 5,
+        children: [
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: components.MediaDeviceContextBuilder(
+              builder: (context, roomCtx, mediaDeviceCtx) => FloatingGlassButton(
+                sfIcon: mediaDeviceCtx.microphoneOpened
+                    ? sf.SFIcons.sf_microphone_fill
+                    : sf.SFIcons.sf_microphone_slash_fill,
+                subWidget: components.ParticipantSelector(
+                  filter: (identifier) => identifier.isAudio && identifier.isLocal,
+                  builder: (context, identifier) => const SizedBox(
+                    width: 15,
+                    height: 15,
+                    child: components.AudioVisualizerWidget(
+                      options: components.AudioVisualizerWidgetOptions(
+                        barCount: 5,
+                        spacing: 1,
+                        // color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    onTap: () {
-                      mediaDeviceCtx.microphoneOpened
-                          ? mediaDeviceCtx.disableMicrophone()
-                          : mediaDeviceCtx.enableMicrophone();
-                    },
                   ),
                 ),
+                onTap: () {
+                  mediaDeviceCtx.microphoneOpened
+                      ? mediaDeviceCtx.disableMicrophone()
+                      : mediaDeviceCtx.enableMicrophone();
+                },
               ),
-              Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: components.MediaDeviceContextBuilder(
-                  builder: (context, roomCtx, mediaDeviceCtx) => FloatingGlassButton(
-                    sfIcon: mediaDeviceCtx.cameraOpened ? sf.SFIcons.sf_video_fill : sf.SFIcons.sf_video_slash_fill,
-                    onTap: () => appCtrl.toggleUserCamera(mediaDeviceCtx),
-                  ),
-                ),
-              ),
-              const Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: FloatingGlassButton(
-                  sfIcon: sf.SFIcons.sf_arrow_up_square_fill,
-                  // onTap: () => appCtrl.toggleScreenShare(),
-                ),
-              ),
-              Selector<AppCtrl, AgentScreenState>(
-                selector: (ctx, appCtx) => appCtx.agentScreenState,
-                builder: (context, agentScreenState, child) => Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: FloatingGlassButton(
-                    isActive: agentScreenState == AgentScreenState.transcription,
-                    sfIcon: sf.SFIcons.sf_ellipsis_message_fill,
-                    onTap: () => ctx.read<AppCtrl>().toggleAgentScreenMode(),
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: FloatingGlassButton(
-                  iconColor: LKColorPaletteLight().fgModerate,
-                  sfIcon: sf.SFIcons.sf_phone_down_fill,
-                  onTap: () => ctx.read<AppCtrl>().disconnect(),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      );
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: components.MediaDeviceContextBuilder(
+              builder: (context, roomCtx, mediaDeviceCtx) => FloatingGlassButton(
+                sfIcon: mediaDeviceCtx.cameraOpened ? sf.SFIcons.sf_video_fill : sf.SFIcons.sf_video_slash_fill,
+                onTap: () => appCtrl.toggleUserCamera(mediaDeviceCtx),
+              ),
+            ),
+          ),
+          const Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: FloatingGlassButton(
+              sfIcon: sf.SFIcons.sf_arrow_up_square_fill,
+              // onTap: () => appCtrl.toggleScreenShare(),
+            ),
+          ),
+          Selector<AppCtrl, AgentScreenState>(
+            selector: (ctx, appCtx) => appCtx.agentScreenState,
+            builder: (context, agentScreenState, child) => Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: FloatingGlassButton(
+                isActive: agentScreenState == AgentScreenState.transcription,
+                sfIcon: sf.SFIcons.sf_ellipsis_message_fill,
+                onTap: () => ctx.read<AppCtrl>().toggleAgentScreenMode(),
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: FloatingGlassButton(
+              iconColor: LKColorPaletteLight().fgModerate,
+              sfIcon: sf.SFIcons.sf_phone_down_fill,
+              onTap: () => ctx.read<AppCtrl>().disconnect(),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

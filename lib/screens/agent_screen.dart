@@ -17,48 +17,49 @@ class AgentTrackView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AgentParticipantSelector(
-        builder: (ctx, agentParticipant) => Selector<components.ParticipantContext?, sdk.TrackPublication?>(
-          selector: (ctx, agentCtx) {
-            final videoTrack = agentCtx?.tracks.where((t) => t.kind == sdk.TrackType.VIDEO).firstOrNull;
-            final audioTrack = agentCtx?.tracks.where((t) => t.kind == sdk.TrackType.AUDIO).firstOrNull;
-            // Prioritize video track
-            return videoTrack ?? audioTrack;
-          },
-          builder: (ctx, mediaTrack, child) => ChangeNotifierProvider<components.TrackReferenceContext?>.value(
-            value:
-                agentParticipant == null ? null : components.TrackReferenceContext(agentParticipant, pub: mediaTrack),
-            child: Builder(
-              builder: (ctx) => Container(
-                // color: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-                alignment: Alignment.center,
-                child: Container(
-                  // color: Colors.blue,
-                  constraints: const BoxConstraints(maxHeight: 350),
-                  child: Builder(builder: (ctx) {
-                    final trackReferenceContext = ctx.watch<components.TrackReferenceContext?>();
-                    // Switch according to video or audio
+    builder: (ctx, agentParticipant) => Selector<components.ParticipantContext?, sdk.TrackPublication?>(
+      selector: (ctx, agentCtx) {
+        final videoTrack = agentCtx?.tracks.where((t) => t.kind == sdk.TrackType.VIDEO).firstOrNull;
+        final audioTrack = agentCtx?.tracks.where((t) => t.kind == sdk.TrackType.AUDIO).firstOrNull;
+        // Prioritize video track
+        return videoTrack ?? audioTrack;
+      },
+      builder: (ctx, mediaTrack, child) => ChangeNotifierProvider<components.TrackReferenceContext?>.value(
+        value: agentParticipant == null ? null : components.TrackReferenceContext(agentParticipant, pub: mediaTrack),
+        child: Builder(
+          builder: (ctx) => Container(
+            // color: Colors.red,
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+            alignment: Alignment.center,
+            child: Container(
+              // color: Colors.blue,
+              constraints: const BoxConstraints(maxHeight: 350),
+              child: Builder(
+                builder: (ctx) {
+                  final trackReferenceContext = ctx.watch<components.TrackReferenceContext?>();
+                  // Switch according to video or audio
 
-                    if (trackReferenceContext?.isVideo ?? false) {
-                      return const components.VideoTrackWidget();
-                    }
+                  if (trackReferenceContext?.isVideo ?? false) {
+                    return const components.VideoTrackWidget();
+                  }
 
-                    return const components.AudioVisualizerWidget(
-                      options: components.AudioVisualizerWidgetOptions(
-                        barCount: 5,
-                        width: 32,
-                        minHeight: 32,
-                        maxHeight: 320,
-                        // color: Theme.of(ctx).colorScheme.primary,
-                      ),
-                    );
-                  }),
-                ),
+                  return const components.AudioVisualizerWidget(
+                    options: components.AudioVisualizerWidgetOptions(
+                      barCount: 5,
+                      width: 32,
+                      minHeight: 32,
+                      maxHeight: 320,
+                      // color: Theme.of(ctx).colorScheme.primary,
+                    ),
+                  );
+                },
               ),
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class FrontView extends StatelessWidget {
@@ -71,38 +72,38 @@ class FrontView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => components.MediaDeviceContextBuilder(
-        builder: (context, roomCtx, mediaDeviceCtx) => Row(
-          spacing: 20,
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Flexible(
-              flex: 2,
-              fit: FlexFit.tight,
-              child: AgentTrackView(),
-            ),
-            if (screenState == AgentScreenState.transcription && mediaDeviceCtx.cameraOpened)
-              Flexible(
-                fit: FlexFit.tight,
-                child: AnimatedOpacity(
-                  opacity: (screenState == AgentScreenState.transcription && mediaDeviceCtx.cameraOpened) ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                    child: components.ParticipantSelector(
-                      filter: (identifier) => identifier.isVideo && identifier.isLocal,
-                      builder: (context, identifier) => components.VideoTrackWidget(
-                        fit: sdk.VideoViewFit.cover,
-                        noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
-                      ),
-                    ),
+    builder: (context, roomCtx, mediaDeviceCtx) => Row(
+      spacing: 20,
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Flexible(
+          flex: 2,
+          fit: FlexFit.tight,
+          child: AgentTrackView(),
+        ),
+        if (screenState == AgentScreenState.transcription && mediaDeviceCtx.cameraOpened)
+          Flexible(
+            fit: FlexFit.tight,
+            child: AnimatedOpacity(
+              opacity: (screenState == AgentScreenState.transcription && mediaDeviceCtx.cameraOpened) ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                child: components.ParticipantSelector(
+                  filter: (identifier) => identifier.isVideo && identifier.isLocal,
+                  builder: (context, identifier) => components.VideoTrackWidget(
+                    fit: sdk.VideoViewFit.cover,
+                    noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
                   ),
                 ),
               ),
-          ],
-        ),
-      );
+            ),
+          ),
+      ],
+    ),
+  );
 }
 
 class AgentScreen extends StatelessWidget {
@@ -110,106 +111,106 @@ class AgentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) => Material(
-        child: Selector<AppCtrl, AgentLayoutState>(
-          selector: (ctx, appCtrl) => AgentLayoutState(
-            isTranscriptionVisible: appCtrl.agentScreenState == AgentScreenState.transcription,
-            isCameraVisible: appCtrl.isUserCameEnabled,
-            isScreenshareVisible: appCtrl.isScreenshareEnabled,
-          ),
-          builder: (ctx, agentLayoutState, child) => Stack(
+    child: Selector<AppCtrl, AgentLayoutState>(
+      selector: (ctx, appCtrl) => AgentLayoutState(
+        isTranscriptionVisible: appCtrl.agentScreenState == AgentScreenState.transcription,
+        isCameraVisible: appCtrl.isUserCameEnabled,
+        isScreenshareVisible: appCtrl.isScreenshareEnabled,
+      ),
+      builder: (ctx, agentLayoutState, child) => Stack(
+        children: [
+          _buildLayoutSwitcher(ctx, agentLayoutState),
+          // In transcription mode the chat placeholder shows the agent
+          // status instead.
+          if (!agentLayoutState.isTranscriptionVisible)
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 110,
+              child: Center(child: AgentStatusIndicator(hideWhenConnected: true)),
+            ),
+        ],
+      ),
+    ),
+  );
+
+  Widget _buildLayoutSwitcher(BuildContext ctx, AgentLayoutState agentLayoutState) => AgentLayoutSwitcher(
+    layoutState: agentLayoutState,
+    // agentViewBuilder: (ctx) => AgentTrackView(),
+    buildAgentView: (ctx) => const AgentTrackView(),
+    buildCameraView: (ctx) => Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: components.MediaDeviceContextBuilder(
+        builder: (context, roomCtx, mediaDeviceCtx) => components.ParticipantSelector(
+          filter: (identifier) => identifier.isVideo && identifier.isLocal,
+          builder: (context, identifier) => Stack(
             children: [
-              _buildLayoutSwitcher(ctx, agentLayoutState),
-              // In transcription mode the chat placeholder shows the agent
-              // status instead.
-              if (!agentLayoutState.isTranscriptionVisible)
-                const Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 110,
-                  child: Center(child: AgentStatusIndicator(hideWhenConnected: true)),
+              components.VideoTrackWidget(
+                fit: sdk.VideoViewFit.cover,
+                noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
+              ),
+              Positioned(
+                right: 10,
+                bottom: 10,
+                child: CameraToggleButton(
+                  onTap: () => mediaDeviceCtx.toggleCameraPosition(),
                 ),
+              ),
             ],
           ),
         ),
-      );
-
-  Widget _buildLayoutSwitcher(BuildContext ctx, AgentLayoutState agentLayoutState) => AgentLayoutSwitcher(
-        layoutState: agentLayoutState,
-        // agentViewBuilder: (ctx) => AgentTrackView(),
-        buildAgentView: (ctx) => const AgentTrackView(),
-        buildCameraView: (ctx) => Container(
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: components.MediaDeviceContextBuilder(
-            builder: (context, roomCtx, mediaDeviceCtx) => components.ParticipantSelector(
-              filter: (identifier) => identifier.isVideo && identifier.isLocal,
-              builder: (context, identifier) => Stack(
-                children: [
-                  components.VideoTrackWidget(
-                    fit: sdk.VideoViewFit.cover,
-                    noTrackBuilder: (ctx) => Container(color: Theme.of(ctx).cardColor),
+      ),
+    ),
+    buildScreenShareView: (ctx) => Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.green.withValues(alpha: 0.3),
+      ),
+      child: const Text('Screenshare View'),
+    ),
+    transcriptionsBuilder: (ctx) => Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => ctx.read<AppCtrl>().messageFocusNode.unfocus(),
+            child: Consumer<sdk.Session>(
+              builder: (context, session, _) {
+                if (session.messages.isEmpty) {
+                  return _AgentStatusPlaceholder(isAgentConnected: session.agent.isConnected);
+                }
+                return components.ChatScrollView(
+                  session: session,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  physics: const BouncingScrollPhysics(),
+                  messageBuilder: (context, message) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _MessageBubble(message: message),
                   ),
-                  Positioned(
-                    right: 10,
-                    bottom: 10,
-                    child: CameraToggleButton(
-                      onTap: () => mediaDeviceCtx.toggleCameraPosition(),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
-        buildScreenShareView: (ctx) => Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: 0.3),
+        Padding(
+          padding: EdgeInsets.only(left: 16, right: 16, bottom: max(0, MediaQuery.of(ctx).viewInsets.bottom - 80)),
+          child: Selector<AppCtrl, bool>(
+            selector: (ctx, appCtx) => appCtx.isSendButtonEnabled,
+            builder: (ctx, isSendEnabled, child) => MessageBar(
+              focusNode: ctx.read<AppCtrl>().messageFocusNode,
+              isSendEnabled: isSendEnabled,
+              controller: ctx.read<AppCtrl>().messageCtrl,
+              onSendTap: () => ctx.read<AppCtrl>().sendMessage(),
+            ),
           ),
-          child: const Text('Screenshare View'),
         ),
-        transcriptionsBuilder: (ctx) => Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => ctx.read<AppCtrl>().messageFocusNode.unfocus(),
-                child: Consumer<sdk.Session>(
-                  builder: (context, session, _) {
-                    if (session.messages.isEmpty) {
-                      return _AgentStatusPlaceholder(isAgentConnected: session.agent.isConnected);
-                    }
-                    return components.ChatScrollView(
-                      session: session,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                      physics: const BouncingScrollPhysics(),
-                      messageBuilder: (context, message) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _MessageBubble(message: message),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: max(0, MediaQuery.of(ctx).viewInsets.bottom - 80)),
-              child: Selector<AppCtrl, bool>(
-                selector: (ctx, appCtx) => appCtx.isSendButtonEnabled,
-                builder: (ctx, isSendEnabled, child) => MessageBar(
-                  focusNode: ctx.read<AppCtrl>().messageFocusNode,
-                  isSendEnabled: isSendEnabled,
-                  controller: ctx.read<AppCtrl>().messageCtrl,
-                  onSendTap: () => ctx.read<AppCtrl>().sendMessage(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }
 
 class _MessageBubble extends StatelessWidget {

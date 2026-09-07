@@ -50,8 +50,10 @@ class AppCtrl extends ChangeNotifier {
 
     // The development token server ID from your LiveKit Cloud project's Settings page.
     // LIVEKIT_SANDBOX_ID is the former name of this setting and is still accepted.
-    final tokenServerId =
-        (dotenv.env['LIVEKIT_TOKEN_SERVER_ID'] ?? dotenv.env['LIVEKIT_SANDBOX_ID'])?.replaceAll('"', '');
+    final tokenServerId = (dotenv.env['LIVEKIT_TOKEN_SERVER_ID'] ?? dotenv.env['LIVEKIT_SANDBOX_ID'])?.replaceAll(
+      '"',
+      '',
+    );
     const placeholderIds = {'<your-token-server-id>', '<your-sandbox-id>'};
 
     sdk.EndpointTokenSource tokenSource;
@@ -131,8 +133,9 @@ class AppCtrl extends ChangeNotifier {
   }
 
   void toggleAgentScreenMode() {
-    agentScreenState =
-        agentScreenState == AgentScreenState.visualizer ? AgentScreenState.transcription : AgentScreenState.visualizer;
+    agentScreenState = agentScreenState == AgentScreenState.visualizer
+        ? AgentScreenState.transcription
+        : AgentScreenState.visualizer;
     notifyListeners();
   }
 

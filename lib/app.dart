@@ -59,39 +59,39 @@ class VoiceAssistantApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext ctx) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appCtrl),
-          ChangeNotifierProvider.value(value: appCtrl.session),
-          ChangeNotifierProvider.value(value: appCtrl.roomContext),
-        ],
-        child: components.SessionContext(
-          session: appCtrl.session,
-          child: MaterialApp(
-            title: 'Voice Assistant',
-            theme: buildTheme(isLight: true),
-            darkTheme: buildTheme(isLight: false),
-            // themeMode: ThemeMode.dark,
-            home: Builder(
-              builder: (ctx) => Center(
-                child: Container(
-                  constraints: BoxConstraints(maxWidth: 620),
-                  child: Stack(
-                    children: [
-                      Selector<AppCtrl, AppScreenState>(
-                        selector: (ctx, appCtx) => appCtx.appScreenState,
-                        builder: (ctx, screen, _) => AppLayoutSwitcher(
-                          frontBuilder: (ctx) => const WelcomeScreen(),
-                          backBuilder: (ctx) => const AgentScreen(),
-                          isFront: screen == AppScreenState.welcome,
-                        ),
-                      ),
-                      const SessionErrorBanner(),
-                    ],
+    providers: [
+      ChangeNotifierProvider.value(value: appCtrl),
+      ChangeNotifierProvider.value(value: appCtrl.session),
+      ChangeNotifierProvider.value(value: appCtrl.roomContext),
+    ],
+    child: components.SessionContext(
+      session: appCtrl.session,
+      child: MaterialApp(
+        title: 'Voice Assistant',
+        theme: buildTheme(isLight: true),
+        darkTheme: buildTheme(isLight: false),
+        // themeMode: ThemeMode.dark,
+        home: Builder(
+          builder: (ctx) => Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 620),
+              child: Stack(
+                children: [
+                  Selector<AppCtrl, AppScreenState>(
+                    selector: (ctx, appCtx) => appCtx.appScreenState,
+                    builder: (ctx, screen, _) => AppLayoutSwitcher(
+                      frontBuilder: (ctx) => const WelcomeScreen(),
+                      backBuilder: (ctx) => const AgentScreen(),
+                      isFront: screen == AppScreenState.welcome,
+                    ),
                   ),
-                ),
+                  const SessionErrorBanner(),
+                ],
               ),
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
